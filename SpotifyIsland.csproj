@@ -19,6 +19,8 @@
     <Copyright>MIT License</Copyright>
     <!-- Needed so app.ico is copied alongside the EXE for tray icon -->
     <AllowedReferenceRelatedFileExtensions>.ico</AllowedReferenceRelatedFileExtensions>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>

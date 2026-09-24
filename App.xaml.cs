@@ -19,9 +19,38 @@ public partial class App : System.Windows.Application
     private NotifyIcon? _trayIcon;
     private MainWindow? _mainWindow;
     private ToolStripMenuItem? _startupMenuItem;
+    private static System.Threading.Mutex? _mutex;
+    private static System.Threading.EventWaitHandle? _showEvent;
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        const string mutexName = @"Local\SpotifyIsland_SingleInstance_Mutex";
+        const string eventName = @"Local\SpotifyIsland_ShowIsland_Event";
+
+        _mutex = new System.Threading.Mutex(true, mutexName, out bool isNewInstance);
+        if (!isNewInstance)
+        {
+            // Another instance is already running! Signal it to show and exit immediately.
+            try
+            {
+                using var ev = System.Threading.EventWaitHandle.OpenExisting(eventName);
+                ev.Set();
+            }
+            catch { }
+            Shutdown();
+            return;
+        }
+
+        try
+        {
+            _showEvent = new System.Threading.EventWaitHandle(false, System.Threading.EventResetMode.AutoReset, eventName);
+            System.Threading.ThreadPool.RegisterWaitForSingleObject(_showEvent, (state, timedOut) =>
+            {
+                Dispatcher.InvokeAsync(ShowIsland);
+            }, null, -1, false);
+        }
+        catch { }
+
         base.OnStartup(e);
 
         // ── Global crash handlers ────────────────────────────────────────
@@ -163,6 +192,8 @@ public partial class App : System.Windows.Application
     protected override void OnExit(ExitEventArgs e)
     {
         _trayIcon?.Dispose();
+        _showEvent?.Dispose();
+        _mutex?.Dispose();
         base.OnExit(e);
     }
 }
