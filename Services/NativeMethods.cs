@@ -24,6 +24,19 @@ public static class NativeMethods
     public const uint VK_VOLUME_MUTE = 0xAD;
     public const uint VK_VOLUME_DOWN = 0xAE;
     public const uint VK_VOLUME_UP = 0xAF;
+    public const uint VK_MEDIA_NEXT_TRACK = 0xB0;
+    public const uint VK_MEDIA_PREV_TRACK = 0xB1;
+    public const uint VK_MEDIA_STOP = 0xB2;
+    public const uint VK_MEDIA_PLAY_PAUSE = 0xB3;
+
+    public const uint KEYEVENTF_KEYUP = 0x0002;
+
+    // Send a single media key press + release
+    public static void SendMediaKey(uint vk)
+    {
+        keybd_event((byte)vk, 0, 0, UIntPtr.Zero);          // key down
+        keybd_event((byte)vk, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // key up
+    }
 
     public const int SW_RESTORE = 9;
     public const int SW_SHOW = 5;

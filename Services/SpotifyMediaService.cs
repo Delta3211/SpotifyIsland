@@ -267,10 +267,15 @@ public class SpotifyMediaService
             return;
         }
 
+        bool sent = false;
         if (_currentSession != null)
         {
-            await _currentSession.TryTogglePlayPauseAsync();
+            try { sent = await _currentSession.TryTogglePlayPauseAsync(); }
+            catch { }
         }
+        // Fallback: simulate the Play/Pause media key so it always works
+        if (!sent)
+            NativeMethods.SendMediaKey(NativeMethods.VK_MEDIA_PLAY_PAUSE);
     }
 
     public async Task SkipNextAsync()
@@ -281,10 +286,14 @@ public class SpotifyMediaService
             return;
         }
 
+        bool sent = false;
         if (_currentSession != null)
         {
-            await _currentSession.TrySkipNextAsync();
+            try { sent = await _currentSession.TrySkipNextAsync(); }
+            catch { }
         }
+        if (!sent)
+            NativeMethods.SendMediaKey(NativeMethods.VK_MEDIA_NEXT_TRACK);
     }
 
     public async Task SkipPreviousAsync()
@@ -295,10 +304,14 @@ public class SpotifyMediaService
             return;
         }
 
+        bool sent = false;
         if (_currentSession != null)
         {
-            await _currentSession.TrySkipPreviousAsync();
+            try { sent = await _currentSession.TrySkipPreviousAsync(); }
+            catch { }
         }
+        if (!sent)
+            NativeMethods.SendMediaKey(NativeMethods.VK_MEDIA_PREV_TRACK);
     }
 
     public async Task SeekToPercentageAsync(double percentage)
