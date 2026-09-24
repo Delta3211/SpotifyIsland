@@ -44,6 +44,8 @@ public partial class MainWindow : Window
     private bool _isShuffle = false;
     private int _repeatState = 0;
 
+    private KeyboardHookService? _keyboardHook;
+
     private enum EdgeDockState
     {
         None,
@@ -52,11 +54,7 @@ public partial class MainWindow : Window
         RightPeek
     }
 
-    private const int HOTKEY_ID_PLAYPAUSE = 9001;
-    private const int HOTKEY_ID_NEXT = 9002;
-    private const int HOTKEY_ID_PREV = 9003;
-    private const int HOTKEY_ID_VOLUP = 9004;
-    private const int HOTKEY_ID_VOLDOWN = 9005;
+    // No RegisterHotKey IDs needed — we use KeyboardHookService instead
 
     public MainWindow()
     {
@@ -66,17 +64,51 @@ public partial class MainWindow : Window
         _mediaService.TrackUpdated += OnTrackUpdated;
         _mediaService.PositionUpdated += OnPositionUpdated;
 
-        // Initialize real system audio spectrum capture
-        _audioCapture = new AudioCaptureService();
-        Controls.VisualizerControl.SharedAudioCapture = _audioCapture;
-        _audioCapture.Start();
-
-        // Initialize real system audio volume tracking
+        // Initialize real system audio volume tracking first
         _systemAudio = new SystemAudioService();
         _systemAudio.VolumeChanged += (pct, muted) =>
         {
             Dispatcher.Invoke(() => ShowVolumeHud(pct, muted));
         };
+
+        // ── Low-level global keyboard hook (Ctrl+Alt+Space/Arrows) ───────
+        // This approach cannot be blocked by other apps unlike RegisterHotKey.
+        _keyboardHook = new KeyboardHookService();
+        _keyboardHook.PlayPause  += () => Dispatcher.InvokeAsync(async () =>
+        {
+            EnsureIslandVisible();
+            await _mediaService.TogglePlayPauseAsync();
+            if (!_isExpanded && _isAutoBloomEnabled)
+                TriggerBloomNotification();
+        });
+        _keyboardHook.Next       += () => Dispatcher.InvokeAsync(async () =>
+        {
+            EnsureIslandVisible();
+            await _mediaService.SkipNextAsync();
+            if (!_isExpanded && _isAutoBloomEnabled)
+                TriggerBloomNotification();
+        });
+        _keyboardHook.Previous   += () => Dispatcher.InvokeAsync(async () =>
+        {
+            EnsureIslandVisible();
+            await _mediaService.SkipPreviousAsync();
+            if (!_isExpanded && _isAutoBloomEnabled)
+                TriggerBloomNotification();
+        });
+        _keyboardHook.VolumeUp   += () => Dispatcher.InvokeAsync(() =>
+        {
+            EnsureIslandVisible();
+            _systemAudio.StepVolumeUp(0.04f);
+        });
+        _keyboardHook.VolumeDown += () => Dispatcher.InvokeAsync(() =>
+        {
+            EnsureIslandVisible();
+            _systemAudio.StepVolumeDown(0.04f);
+        });
+
+        _audioCapture = new AudioCaptureService();
+        Controls.VisualizerControl.SharedAudioCapture = _audioCapture;
+        _audioCapture.Start();
 
         _volumeHudTimer = new DispatcherTimer
         {
@@ -226,73 +258,14 @@ public partial class MainWindow : Window
         base.OnSourceInitialized(e);
         _windowHandle = new WindowInteropHelper(this).Handle;
         _hwndSource = HwndSource.FromHwnd(_windowHandle);
-        _hwndSource?.AddHook(HwndHook);
-
-        RegisterGlobalHotkeys();
     }
 
-    private void RegisterGlobalHotkeys()
+    public void EnsureIslandVisible()
     {
-        if (_windowHandle == IntPtr.Zero) return;
-
-        try
+        if (!IsVisible || Opacity < 0.1)
         {
-            // Ctrl + Alt + Space: Play/Pause
-            NativeMethods.RegisterHotKey(_windowHandle, HOTKEY_ID_PLAYPAUSE,
-                NativeMethods.MOD_CONTROL | NativeMethods.MOD_ALT, NativeMethods.VK_SPACE);
-
-            // Ctrl + Alt + Right: Next
-            NativeMethods.RegisterHotKey(_windowHandle, HOTKEY_ID_NEXT,
-                NativeMethods.MOD_CONTROL | NativeMethods.MOD_ALT, NativeMethods.VK_RIGHT);
-
-            // Ctrl + Alt + Left: Prev
-            NativeMethods.RegisterHotKey(_windowHandle, HOTKEY_ID_PREV,
-                NativeMethods.MOD_CONTROL | NativeMethods.MOD_ALT, NativeMethods.VK_LEFT);
-
-            // Ctrl + Alt + Up: Volume Up
-            NativeMethods.RegisterHotKey(_windowHandle, HOTKEY_ID_VOLUP,
-                NativeMethods.MOD_CONTROL | NativeMethods.MOD_ALT, NativeMethods.VK_UP);
-
-            // Ctrl + Alt + Down: Volume Down
-            NativeMethods.RegisterHotKey(_windowHandle, HOTKEY_ID_VOLDOWN,
-                NativeMethods.MOD_CONTROL | NativeMethods.MOD_ALT, NativeMethods.VK_DOWN);
+            ShowIslandForSpotify();
         }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Failed to register hotkeys: {ex.Message}");
-        }
-    }
-
-    private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-    {
-        if (msg == NativeMethods.WM_HOTKEY)
-        {
-            int hotkeyId = wParam.ToInt32();
-            switch (hotkeyId)
-            {
-                case HOTKEY_ID_PLAYPAUSE:
-                    _ = _mediaService.TogglePlayPauseAsync();
-                    handled = true;
-                    break;
-                case HOTKEY_ID_NEXT:
-                    _ = _mediaService.SkipNextAsync();
-                    handled = true;
-                    break;
-                case HOTKEY_ID_PREV:
-                    _ = _mediaService.SkipPreviousAsync();
-                    handled = true;
-                    break;
-                case HOTKEY_ID_VOLUP:
-                    _systemAudio.StepVolumeUp(0.04f);
-                    handled = true;
-                    break;
-                case HOTKEY_ID_VOLDOWN:
-                    _systemAudio.StepVolumeDown(0.04f);
-                    handled = true;
-                    break;
-            }
-        }
-        return IntPtr.Zero;
     }
 
     private void SnapToTopCenter()
@@ -1151,16 +1124,8 @@ public partial class MainWindow : Window
     private void OnWindowClosing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         _spotifyMonitorTimer.Stop();
+        _keyboardHook?.Dispose();
         _systemAudio?.Dispose();
         _audioCapture?.Dispose();
-
-        if (_windowHandle != IntPtr.Zero)
-        {
-            NativeMethods.UnregisterHotKey(_windowHandle, HOTKEY_ID_PLAYPAUSE);
-            NativeMethods.UnregisterHotKey(_windowHandle, HOTKEY_ID_NEXT);
-            NativeMethods.UnregisterHotKey(_windowHandle, HOTKEY_ID_PREV);
-            NativeMethods.UnregisterHotKey(_windowHandle, HOTKEY_ID_VOLUP);
-            NativeMethods.UnregisterHotKey(_windowHandle, HOTKEY_ID_VOLDOWN);
-        }
     }
 }

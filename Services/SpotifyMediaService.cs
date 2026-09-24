@@ -262,6 +262,10 @@ public class SpotifyMediaService
     {
         if (_isDemoMode)
         {
+            if (System.Diagnostics.Process.GetProcessesByName("Spotify").Length > 0)
+            {
+                NativeMethods.SendMediaKey(NativeMethods.VK_MEDIA_PLAY_PAUSE);
+            }
             CurrentTrack.IsPlaying = !CurrentTrack.IsPlaying;
             TrackUpdated?.Invoke(CurrentTrack);
             return;
@@ -282,6 +286,10 @@ public class SpotifyMediaService
     {
         if (_isDemoMode)
         {
+            if (System.Diagnostics.Process.GetProcessesByName("Spotify").Length > 0)
+            {
+                NativeMethods.SendMediaKey(NativeMethods.VK_MEDIA_NEXT_TRACK);
+            }
             NextDemoTrack();
             return;
         }
@@ -300,6 +308,10 @@ public class SpotifyMediaService
     {
         if (_isDemoMode)
         {
+            if (System.Diagnostics.Process.GetProcessesByName("Spotify").Length > 0)
+            {
+                NativeMethods.SendMediaKey(NativeMethods.VK_MEDIA_PREV_TRACK);
+            }
             PreviousDemoTrack();
             return;
         }

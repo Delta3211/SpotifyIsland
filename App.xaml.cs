@@ -71,14 +71,13 @@ public partial class App : System.Windows.Application
 
         _trayIcon.ContextMenuStrip = menu;
 
-        // Show the window hidden so the monitor timer starts running
+        // Show the window so the island is immediately visible and interactive
         _mainWindow.Show();
-        _mainWindow.Hide();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
 
-    private void ShowIsland()
+    public void ShowIsland()
     {
         if (_mainWindow == null) return;
         _mainWindow.Visibility = Visibility.Visible;

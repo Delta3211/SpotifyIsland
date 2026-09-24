@@ -29,13 +29,14 @@ public static class NativeMethods
     public const uint VK_MEDIA_STOP = 0xB2;
     public const uint VK_MEDIA_PLAY_PAUSE = 0xB3;
 
+    public const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
     public const uint KEYEVENTF_KEYUP = 0x0002;
 
-    // Send a single media key press + release
+    // Send a single media key press + release with EXTENDEDKEY flag so Windows & Spotify recognize it
     public static void SendMediaKey(uint vk)
     {
-        keybd_event((byte)vk, 0, 0, UIntPtr.Zero);          // key down
-        keybd_event((byte)vk, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // key up
+        keybd_event((byte)vk, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+        keybd_event((byte)vk, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero);
     }
 
     public const int SW_RESTORE = 9;
@@ -67,14 +68,14 @@ public static class NativeMethods
 
     public static void StepVolumeUp()
     {
-        keybd_event((byte)VK_VOLUME_UP, 0, 0, UIntPtr.Zero);
-        keybd_event((byte)VK_VOLUME_UP, 0, 2, UIntPtr.Zero);
+        keybd_event((byte)VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+        keybd_event((byte)VK_VOLUME_UP, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero);
     }
 
     public static void StepVolumeDown()
     {
-        keybd_event((byte)VK_VOLUME_DOWN, 0, 0, UIntPtr.Zero);
-        keybd_event((byte)VK_VOLUME_DOWN, 0, 2, UIntPtr.Zero);
+        keybd_event((byte)VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+        keybd_event((byte)VK_VOLUME_DOWN, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, UIntPtr.Zero);
     }
 
     [DllImport("user32.dll")]
