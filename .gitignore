@@ -1,0 +1,47 @@
+# .gitignore for SpotifyIsland (.NET WPF / C#)
+
+## ── Build outputs ─────────────────────────────────────────────────────────
+[Bb]in/
+[Oo]bj/
+dist/
+publish/
+publish-lightweight/
+
+## ── Visual Studio / Rider ─────────────────────────────────────────────────
+.vs/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+*.ncb
+*.opendb
+*.VC.db
+*.VC.VC.opendb
+
+## ── .NET ──────────────────────────────────────────────────────────────────
+*.dll
+*.exe
+!SpotifyIsland.exe        # Allow if you want to commit the release EXE
+*.pdb
+*.mdb
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## ── NuGet ─────────────────────────────────────────────────────────────────
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+## ── Runtime / Crash logs ──────────────────────────────────────────────────
+crash.log
+*.log
+
+## ── OS clutter ────────────────────────────────────────────────────────────
+Thumbs.db
+.DS_Store
+desktop.ini
+
+## ── Temp snapshot scripts ─────────────────────────────────────────────────
+capture_preview.ps1
