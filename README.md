@@ -27,6 +27,11 @@ Sits quietly in your system tray. Springs to life the moment you open or minimiz
 | 🖱️ | **Edge Docking** | Drag to screen edges for left/right arrow peek tabs |
 | 🔁 | **Shuffle / Repeat / Favorite** | Full playback control row in the expanded view |
 | 🔇 | **Volume HUD** | Translucent volume percentage overlay on key press |
+| 💾 | **Persistent Preferences** | Remembers placement, pin state, animation settings, lyric mode, and hotkeys |
+| 🎧 | **Output Device Picker** | Switch the active Windows playback device from the Settings panel |
+| 🌙 | **Focus Mode** | Removes visualizers for a calmer, low-distraction player |
+| ✍ | **Compact Lyrics** | Keeps the current and upcoming lyric line in view |
+| 📴 | **Offline State** | Clear Spotify-unavailable state with a one-click launch action |
 | 🪟 | **System Tray** | Runs passively in background — activates when Spotify opens/minimizes |
 
 ---
@@ -47,8 +52,8 @@ Sits quietly in your system tray. Springs to life the moment you open or minimiz
 **Requirements:** [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/SpotifyIsland.git
-cd SpotifyIsland/SpotifyIsland
+git clone https://github.com/Delta3211/SpotifyIsland.git
+cd SpotifyIsland
 dotnet run
 ```
 
@@ -71,6 +76,8 @@ dotnet publish SpotifyIsland.csproj -c Release -r win-x64 --self-contained true 
 | `Ctrl + Alt + ↑` | Volume Up (+4%) |
 | `Ctrl + Alt + ↓` | Volume Down (-4%) |
 
+Choose alternate keys for each action from Settings. The `Ctrl + Alt` modifier stays reserved so shortcuts remain available from any app.
+
 ---
 
 ## 🖱️ Interaction Guide
@@ -82,6 +89,7 @@ dotnet publish SpotifyIsland.csproj -c Release -r win-x64 --self-contained true 
 | **Drag to left/right edge** | Docks as an arrow peek tab |
 | **Drag to top** | Snaps back to top-center |
 | **Pin button (📌)** | Keep expanded permanently |
+| **Settings** | Choose output device, focus mode, compact lyrics, collapse delay, and hotkeys |
 | **Right-click tray icon** | Open Spotify, toggle startup, quit |
 | **Double-click tray icon** | Show island immediately |
 
@@ -109,12 +117,14 @@ SpotifyIsland/
 ├── Controls/
 │   └── VisualizerControl.xaml.cs   # Custom 14-bar audio visualizer
 ├── Models/
-│   └── MediaTrackInfo.cs           # Track data model
+│   ├── MediaTrackInfo.cs            # Track data model
+│   └── IslandSettings.cs            # Persistent widget preferences
 ├── Services/
 │   ├── SpotifyMediaService.cs      # GSMTC media session integration
 │   ├── AudioCaptureService.cs      # WASAPI real-time audio capture
 │   ├── SystemAudioService.cs       # Volume control + device detection
 │   ├── ColorExtractor.cs           # Album art dominant color extraction
+│   ├── SettingsService.cs           # Local JSON preference storage
 │   └── NativeMethods.cs            # Win32 P/Invokes + Spotify window finder
 └── dist/
     └── SpotifyIsland.exe           # Self-contained build output
@@ -128,6 +138,10 @@ SpotifyIsland/
 - **Spotify:** Desktop app (any version — including the new Chromium-based one)
 - **Runtime:** None (self-contained EXE includes .NET 8 runtime)
 - **Permissions:** No admin rights required
+
+## 🔐 Spotify API queue access
+
+SpotifyIsland intentionally works without an account or API key through Windows GSMTC. A true queue preview requires a Spotify Developer app and a user-authorized OAuth connection, so it is not enabled in the public build yet. The current release keeps playback, lyrics, device selection, and track actions fully local.
 
 ---
 

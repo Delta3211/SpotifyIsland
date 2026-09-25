@@ -146,6 +146,10 @@ public partial class VisualizerControl : UserControl
 
     private void OnCompositionRendering(object? sender, EventArgs e)
     {
+        // Skip rendering entirely when this control is not visible — avoids burning
+        // CPU for the PillVisualizer while the expanded view is shown (and vice-versa).
+        if (!IsVisible || ActualWidth <= 0 || ActualHeight <= 0) return;
+
         _time += 0.08;
         double maxHeight = ActualHeight > 0 ? ActualHeight : 24;
         bool playing = IsPlaying;

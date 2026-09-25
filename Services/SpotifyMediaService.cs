@@ -26,6 +26,10 @@ public class SpotifyMediaService
     public MediaTrackInfo CurrentTrack { get; private set; } = new();
     public bool IsDemoMode => _isDemoMode;
 
+    // Playback state mirrored from GSMTC so UI can read them
+    public bool           IsShuffle  { get; private set; } = false;
+    public IslandRepeatMode RepeatMode { get; private set; } = IslandRepeatMode.Off;
+
     public SpotifyMediaService()
     {
         _positionTimer = new DispatcherTimer
@@ -192,6 +196,7 @@ public class SpotifyMediaService
             CurrentTrack.AccentColor = palette.AccentColor;
             CurrentTrack.GlowColor = palette.GlowColor;
             CurrentTrack.DarkColor = palette.DarkColor;
+            CurrentTrack.SecondaryAccent = palette.SecondaryAccent;
             CurrentTrack.HasTrack = true;
 
             await UpdatePlaybackInfoAsync(session);
@@ -214,6 +219,22 @@ public class SpotifyMediaService
             {
                 bool isPlaying = playbackInfo.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
                 CurrentTrack.IsPlaying = isPlaying;
+
+                // Mirror shuffle / repeat state
+                if (playbackInfo.IsShuffleActive.HasValue)
+                    IsShuffle = playbackInfo.IsShuffleActive.Value;
+                if (playbackInfo.AutoRepeatMode.HasValue)
+                {
+                    // Cast to int to avoid WinRT type visibility issue in WPF temp project:
+                    // None=0, List=1, Track=2
+                    int rawRepeat = (int)playbackInfo.AutoRepeatMode.Value;
+                    RepeatMode = rawRepeat switch
+                    {
+                        1 => IslandRepeatMode.All,
+                        2 => IslandRepeatMode.One,
+                        _ => IslandRepeatMode.Off,
+                    };
+                }
                 TrackUpdated?.Invoke(CurrentTrack);
             }
         }
@@ -326,6 +347,38 @@ public class SpotifyMediaService
             NativeMethods.SendMediaKey(NativeMethods.VK_MEDIA_PREV_TRACK);
     }
 
+    public async Task ToggleShuffleAsync()
+    {
+        if (_isDemoMode) return;
+        if (_currentSession != null)
+        {
+            try { await _currentSession.TryChangeShuffleActiveAsync(!IsShuffle); }
+            catch { }
+        }
+    }
+
+    public async Task CycleRepeatAsync()
+    {
+        if (_isDemoMode) return;
+        if (_currentSession != null)
+        {
+            try
+            {
+                // Map our enum back to GSMTC int value (None=0, List=1, Track=2)
+                // and cast dynamically to avoid WPF temp-project type resolution failure.
+                int nextRepeat = RepeatMode switch
+                {
+                    IslandRepeatMode.Off => 1, // List
+                    IslandRepeatMode.All => 2, // Track
+                    _                    => 0, // None
+                };
+                await _currentSession.TryChangeAutoRepeatModeAsync(
+                    (dynamic)nextRepeat);
+            }
+            catch { }
+        }
+    }
+
     public async Task SeekToPercentageAsync(double percentage)
     {
         if (CurrentTrack.Duration.TotalSeconds <= 0) return;
@@ -339,7 +392,8 @@ public class SpotifyMediaService
         {
             try
             {
-                await _currentSession.TryChangePlaybackPositionAsync((long)targetTime.TotalMicroseconds * 10);
+                // GSMTC expects 100-nanosecond ticks: seconds * 10_000_000
+                await _currentSession.TryChangePlaybackPositionAsync((long)(targetTime.TotalSeconds * 10_000_000));
             }
             catch { }
         }
@@ -358,7 +412,8 @@ public class SpotifyMediaService
         {
             try
             {
-                await _currentSession.TryChangePlaybackPositionAsync((long)targetTime.TotalMicroseconds * 10);
+                // GSMTC expects 100-nanosecond ticks: seconds * 10_000_000
+                await _currentSession.TryChangePlaybackPositionAsync((long)(targetTime.TotalSeconds * 10_000_000));
             }
             catch { }
         }
@@ -403,6 +458,10 @@ public class SpotifyMediaService
         CurrentTrack.AccentColor = dt.Accent;
         CurrentTrack.GlowColor = dt.Glow;
         CurrentTrack.DarkColor = dt.Dark;
+        CurrentTrack.SecondaryAccent = Color.FromRgb(
+            (byte)Math.Clamp(dt.Accent.R * 0.65 + 40, 0, 255),
+            (byte)Math.Clamp(dt.Accent.G * 0.65 + 40, 0, 255),
+            (byte)Math.Clamp(dt.Accent.B * 0.65 + 40, 0, 255));
         CurrentTrack.Position = TimeSpan.FromSeconds(24);
         CurrentTrack.Duration = TimeSpan.FromSeconds(dt.DurationSec);
         CurrentTrack.IsPlaying = true;

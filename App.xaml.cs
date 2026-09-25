@@ -21,6 +21,7 @@ public partial class App : System.Windows.Application
     private ToolStripMenuItem? _startupMenuItem;
     private static System.Threading.Mutex? _mutex;
     private static System.Threading.EventWaitHandle? _showEvent;
+    private static System.Threading.RegisteredWaitHandle? _showEventRegistration;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -44,7 +45,7 @@ public partial class App : System.Windows.Application
         try
         {
             _showEvent = new System.Threading.EventWaitHandle(false, System.Threading.EventResetMode.AutoReset, eventName);
-            System.Threading.ThreadPool.RegisterWaitForSingleObject(_showEvent, (state, timedOut) =>
+            _showEventRegistration = System.Threading.ThreadPool.RegisterWaitForSingleObject(_showEvent, (state, timedOut) =>
             {
                 Dispatcher.InvokeAsync(ShowIsland);
             }, null, -1, false);
@@ -56,11 +57,11 @@ public partial class App : System.Windows.Application
         // ── Global crash handlers ────────────────────────────────────────
         AppDomain.CurrentDomain.UnhandledException += (s, args) =>
         {
-            try { File.WriteAllText("crash.log", $"Unhandled: {args.ExceptionObject}"); } catch { }
+            try { AppendCrashLog($"Unhandled: {args.ExceptionObject}"); } catch { }
         };
         DispatcherUnhandledException += (s, args) =>
         {
-            try { File.WriteAllText("crash.log", $"DispatcherUnhandled: {args.Exception}"); } catch { }
+            try { AppendCrashLog($"DispatcherUnhandled: {args.Exception}"); } catch { }
             args.Handled = true;
         };
 
@@ -109,8 +110,17 @@ public partial class App : System.Windows.Application
     public void ShowIsland()
     {
         if (_mainWindow == null) return;
-        _mainWindow.Visibility = Visibility.Visible;
-        _mainWindow.Opacity    = 1;
+
+        // If the window was closed (e.g. after a previous crash), recreate it
+        if (!_mainWindow.IsLoaded)
+        {
+            _mainWindow = new MainWindow();
+            MainWindow  = _mainWindow;
+        }
+
+        // A hidden island retains its completed off-screen animation. Replaying
+        // its normal entrance restores both visibility and the on-screen position.
+        _mainWindow.EnsureIslandVisible();
         _mainWindow.Activate();
         _trayIcon!.Text = "Spotify Island — Active";
     }
@@ -129,6 +139,11 @@ public partial class App : System.Windows.Application
 
     private void QuitApp()
     {
+        // Run MainWindow cleanup before shutdown
+        if (_mainWindow is SpotifyIsland.MainWindow mw)
+        {
+            try { mw.OnWindowDispose(); } catch { }
+        }
         _trayIcon?.Dispose();
         Shutdown();
     }
@@ -192,9 +207,21 @@ public partial class App : System.Windows.Application
     protected override void OnExit(ExitEventArgs e)
     {
         _trayIcon?.Dispose();
+        _showEventRegistration?.Unregister(null);
         _showEvent?.Dispose();
         _mutex?.Dispose();
         base.OnExit(e);
+    }
+
+    private static void AppendCrashLog(string message)
+    {
+        try
+        {
+            string logPath = System.IO.Path.Combine(AppContext.BaseDirectory, "crash.log");
+            string line = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}{Environment.NewLine}";
+            File.AppendAllText(logPath, line);
+        }
+        catch { }
     }
 }
 

@@ -1,0 +1,10 @@
+<UserControl x:Class="SpotifyIsland.Controls.MarqueeTextBlock"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="OnLoaded" Unloaded="OnUnloaded"
+             ClipToBounds="True">
+    <Canvas x:Name="MarqueeCanvas" ClipToBounds="True">
+        <TextBlock x:Name="Label1" Canvas.Top="0"/>
+        <TextBlock x:Name="Label2" Canvas.Top="0" Visibility="Collapsed"/>
+    </Canvas>
+</UserControl>

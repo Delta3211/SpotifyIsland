@@ -14,7 +14,7 @@
     <ApplicationIcon>app.ico</ApplicationIcon>
     <AssemblyName>SpotifyIsland</AssemblyName>
     <RootNamespace>SpotifyIsland</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Description>Dynamic Island companion widget for Spotify on Windows</Description>
     <Copyright>MIT License</Copyright>
     <!-- Needed so app.ico is copied alongside the EXE for tray icon -->
@@ -25,6 +25,15 @@
 
   <ItemGroup>
     <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- These service files use APIs not available in the WPF XAML temp project.
+       Marking them as Compile with no contribution to the BAML intermediate step. -->
+  <ItemGroup>
+    <Compile Update="Services\ProcessWatcherService.cs">
+      <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+    </Compile>
   </ItemGroup>
 
   <!-- Copy app.ico to output directory so tray icon loads at runtime -->

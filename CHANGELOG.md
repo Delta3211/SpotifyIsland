@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-09-25
+
+### Added
+- Persistent preferences for island placement, pin state, collapse delay, auto-bloom, focus mode, compact lyrics, and hotkey bindings
+- Output-device picker for changing the Windows default playback device from the island
+- Configurable `Ctrl + Alt` hotkeys for playback, navigation, and volume
+- Focus mode that hides visualizers for a calmer playback surface
+- Compact synced-lyrics view with the active and next line
+- Clear Spotify-offline state with a direct launch action
+- Album-art actions for opening the current artist or album and copying a Spotify search link
+
+### Fixed
+- Startup crash caused by the collapse-delay slider firing before its timers were initialized
+- Hidden-instance wake-up now replays the island entrance instead of leaving it off-screen
+- Single-instance event listener is retained for the full app lifetime
+
+---
+
 ## [1.0.0] — 2026-09-24
 
 ### Added

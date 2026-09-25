@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:SpotifyIsland.Controls"
         mc:Ignorable="d"
-        Title="Spotify Island" 
-        Height="300" Width="640"
-        WindowStyle="None" 
-        AllowsTransparency="True" 
+        Title="Spotify Island"
+        Height="320" Width="660"
+        WindowStyle="None"
+        AllowsTransparency="True"
         Background="Transparent"
-        Topmost="True" 
+        Topmost="True"
         ShowInTaskbar="False"
         ResizeMode="NoResize"
         WindowStartupLocation="Manual"
@@ -18,29 +18,31 @@
         MouseEnter="OnWindowMouseEnter"
         MouseLeave="OnWindowMouseLeave"
         Loaded="OnWindowLoaded"
-        Closing="OnWindowClosing">
+        Closing="OnWindowClosing"
+        FontFamily="Segoe UI Variable Display, Segoe UI, sans-serif">
 
     <Window.Resources>
-        <!-- Icon Button Style -->
+
+        <!-- ── Icon button ─────────────────────────────────────────── -->
         <Style x:Key="IconButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="Foreground" Value="#C8C8D0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="16" Padding="{TemplateBinding Padding}">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="14" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#25FFFFFF"/>
+                                <Setter TargetName="bd" Property="Background" Value="#22FFFFFF"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#40FFFFFF"/>
+                                <Setter TargetName="bd" Property="Background" Value="#3CFFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -48,26 +50,26 @@
             </Setter>
         </Style>
 
-        <!-- Round Action Button (Extra Rounded) -->
+        <!-- ── Round control button ────────────────────────────────── -->
         <Style x:Key="RoundControlButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#1CFFFFFF"/>
+            <Setter Property="Background" Value="#18FFFFFF"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#EEEEEE"/>
+            <Setter Property="Foreground" Value="#E8E8EE"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="19" Width="38" Height="38">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="18" Width="36" Height="36">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#35FFFFFF"/>
+                                <Setter TargetName="bd" Property="Background" Value="#30FFFFFF"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#55FFFFFF"/>
+                                <Setter TargetName="bd" Property="Background" Value="#50FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -75,24 +77,24 @@
             </Setter>
         </Style>
 
-        <!-- Custom Sleek Slider Style -->
+        <!-- ── Seek slider thumb ───────────────────────────────────── -->
         <Style x:Key="SleekSliderThumb" TargetType="Thumb">
-            <Setter Property="SnapsToDevicePixels" Value="true" />
-            <Setter Property="OverridesDefaultStyle" Value="true" />
-            <Setter Property="Height" Value="13" />
-            <Setter Property="Width" Value="13" />
+            <Setter Property="SnapsToDevicePixels" Value="true"/>
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="Height" Value="14"/>
+            <Setter Property="Width"  Value="14"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
-                        <Ellipse x:Name="thumbEllipse" Fill="#FFFFFF" Width="13" Height="13">
+                        <Ellipse x:Name="e" Fill="#FFFFFF" Width="14" Height="14">
                             <Ellipse.Effect>
-                                <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#FFFFFF" Opacity="0.7"/>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#FFFFFF" Opacity="0.65"/>
                             </Ellipse.Effect>
                         </Ellipse>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="thumbEllipse" Property="Width" Value="15"/>
-                                <Setter TargetName="thumbEllipse" Property="Height" Value="15"/>
+                                <Setter TargetName="e" Property="Width"  Value="16"/>
+                                <Setter TargetName="e" Property="Height" Value="16"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -100,37 +102,41 @@
             </Setter>
         </Style>
 
+        <!-- ── Seek slider track ───────────────────────────────────── -->
         <Style x:Key="SleekSlider" TargetType="Slider">
-            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Maximum" Value="1" />
-            <Setter Property="Minimum" Value="0" />
-            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Maximum"    Value="1"/>
+            <Setter Property="Minimum"    Value="0"/>
+            <Setter Property="Cursor"     Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
                         <Grid VerticalAlignment="Center">
-                            <!-- Background Track -->
-                            <Border Height="5" CornerRadius="2.5" Background="#28FFFFFF" />
-                            <!-- Active Fill -->
+                            <Border Height="5" CornerRadius="2.5" Background="#22FFFFFF"/>
                             <Track x:Name="PART_Track">
                                 <Track.DecreaseRepeatButton>
                                     <RepeatButton Command="Slider.DecreaseLarge">
                                         <RepeatButton.Template>
                                             <ControlTemplate TargetType="RepeatButton">
-                                                <Border x:Name="TrackFill" Height="5" CornerRadius="2.5" Background="{Binding ElementName=PlayPauseButtonBorder, Path=Background}" />
+                                                <!-- Task 10: SeekFillBrush named so code-behind can animate its color -->
+                                                <Border x:Name="fill" Height="5" CornerRadius="2.5">
+                                                    <Border.Background>
+                                                        <SolidColorBrush Color="#1ED760"/>
+                                                    </Border.Background>
+                                                </Border>
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                     </RepeatButton>
                                 </Track.DecreaseRepeatButton>
                                 <Track.Thumb>
-                                    <Thumb Style="{StaticResource SleekSliderThumb}" />
+                                    <Thumb Style="{StaticResource SleekSliderThumb}"/>
                                 </Track.Thumb>
                                 <Track.IncreaseRepeatButton>
                                     <RepeatButton Command="Slider.IncreaseLarge">
                                         <RepeatButton.Template>
                                             <ControlTemplate TargetType="RepeatButton">
-                                                <Border Height="5" Background="Transparent" />
+                                                <Border Height="5" Background="Transparent"/>
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                     </RepeatButton>
@@ -141,146 +147,142 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- ── Settings slider ─────────────────────────────────────── -->
+        <Style x:Key="SettingsSlider" TargetType="Slider" BasedOn="{StaticResource SleekSlider}">
+            <Setter Property="Maximum" Value="4000"/>
+            <Setter Property="Minimum" Value="800"/>
+            <Setter Property="SmallChange" Value="100"/>
+            <Setter Property="LargeChange" Value="400"/>
+        </Style>
+
+        <Style x:Key="SettingsComboBox" TargetType="ComboBox">
+            <Setter Property="MinWidth" Value="112"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="Background" Value="#1CFFFFFF"/>
+            <Setter Property="BorderBrush" Value="#35FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#E8E8EE"/>
+            <Setter Property="FontSize" Value="10.5"/>
+        </Style>
+
     </Window.Resources>
 
-    <!-- Outer Grid for Dynamic Island & Edge Peek Tabs -->
+    <!-- ================================================================ -->
+    <!-- ROOT GRID — transparent hit area                                  -->
+    <!-- ================================================================ -->
     <Grid x:Name="MainRootGrid" Margin="0,10,0,0" VerticalAlignment="Top">
-        <!-- Left Edge Peek Arrow Tab (Shown when docked to left screen edge) -->
+
+        <!-- ── Left edge peek tab ────────────────────────────────────── -->
         <Border x:Name="LeftPeekTab"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Width="32" Height="76"
-                CornerRadius="0, 16, 16, 0"
-                Cursor="Hand"
-                Visibility="Collapsed"
-                ToolTip="Spotify Island (Hover or Click to open)"
+                HorizontalAlignment="Left" VerticalAlignment="Top"
+                Width="30" Height="72" CornerRadius="0,14,14,0"
+                Cursor="Hand" Visibility="Collapsed"
+                ToolTip="Spotify Island — hover to open"
                 MouseEnter="OnPeekTabMouseEnter"
                 MouseDown="OnPeekTabMouseDown">
             <Border.Effect>
-                <DropShadowEffect x:Name="LeftTabGlow" BlurRadius="20" ShadowDepth="2" Direction="0" Color="#1ED760" Opacity="0.7"/>
+                <DropShadowEffect x:Name="LeftTabGlow" BlurRadius="22" ShadowDepth="2" Direction="0" Color="#1ED760" Opacity="0.7"/>
             </Border.Effect>
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#F0141418" Offset="0.0"/>
-                    <GradientStop Color="#F8101014" Offset="1.0"/>
+                    <GradientStop Color="#F2141418" Offset="0"/>
+                    <GradientStop Color="#F8101014" Offset="1"/>
                 </LinearGradientBrush>
             </Border.Background>
             <Border.BorderBrush>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="#40FFFFFF" Offset="0.0"/>
-                    <GradientStop x:Name="LeftTabBorderAccent" Color="#901ED760" Offset="1.0"/>
+                    <GradientStop Color="#38FFFFFF" Offset="0"/>
+                    <GradientStop x:Name="LeftTabBorderAccent" Color="#901ED760" Offset="1"/>
                 </LinearGradientBrush>
             </Border.BorderBrush>
-            <Border.BorderThickness>
-                <Thickness Left="0" Top="1.5" Right="1.5" Bottom="1.5"/>
-            </Border.BorderThickness>
-
-            <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Ellipse x:Name="LeftTabDot" Width="6" Height="6" Fill="#1ED760" Margin="0,0,0,8" HorizontalAlignment="Center"/>
-                    <Path x:Name="LeftTabArrow"
-                          Data="M 0 0 L 6 6 L 0 12"
-                          Stroke="#FFFFFF"
-                          StrokeThickness="2.5"
-                          StrokeStartLineCap="Round"
-                          StrokeEndLineCap="Round"
-                          StrokeLineJoin="Round"
-                          HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Grid>
+            <Border.BorderThickness><Thickness Left="0" Top="1.5" Right="1.5" Bottom="1.5"/></Border.BorderThickness>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Ellipse x:Name="LeftTabDot" Width="6" Height="6" Fill="#1ED760" HorizontalAlignment="Center" Margin="0,0,0,7"/>
+                <Path Data="M 0 0 L 6 6 L 0 12" Stroke="#FFFFFF" StrokeThickness="2.2"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" HorizontalAlignment="Center"/>
+            </StackPanel>
         </Border>
 
-        <!-- Right Edge Peek Arrow Tab (Shown when docked to right screen edge) -->
+        <!-- ── Right edge peek tab ───────────────────────────────────── -->
         <Border x:Name="RightPeekTab"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                Width="32" Height="76"
-                CornerRadius="16, 0, 0, 16"
-                Cursor="Hand"
-                Visibility="Collapsed"
-                ToolTip="Spotify Island (Hover or Click to open)"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Width="30" Height="72" CornerRadius="14,0,0,14"
+                Cursor="Hand" Visibility="Collapsed"
+                ToolTip="Spotify Island — hover to open"
                 MouseEnter="OnPeekTabMouseEnter"
                 MouseDown="OnPeekTabMouseDown">
             <Border.Effect>
-                <DropShadowEffect x:Name="RightTabGlow" BlurRadius="20" ShadowDepth="2" Direction="180" Color="#1ED760" Opacity="0.7"/>
+                <DropShadowEffect x:Name="RightTabGlow" BlurRadius="22" ShadowDepth="2" Direction="180" Color="#1ED760" Opacity="0.7"/>
             </Border.Effect>
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#F8101014" Offset="0.0"/>
-                    <GradientStop Color="#F0141418" Offset="1.0"/>
+                    <GradientStop Color="#F8101014" Offset="0"/>
+                    <GradientStop Color="#F2141418" Offset="1"/>
                 </LinearGradientBrush>
             </Border.Background>
             <Border.BorderBrush>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop x:Name="RightTabBorderAccent" Color="#901ED760" Offset="0.0"/>
-                    <GradientStop Color="#40FFFFFF" Offset="1.0"/>
+                    <GradientStop x:Name="RightTabBorderAccent" Color="#901ED760" Offset="0"/>
+                    <GradientStop Color="#38FFFFFF" Offset="1"/>
                 </LinearGradientBrush>
             </Border.BorderBrush>
-            <Border.BorderThickness>
-                <Thickness Left="1.5" Top="1.5" Right="0" Bottom="1.5"/>
-            </Border.BorderThickness>
-
-            <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Ellipse x:Name="RightTabDot" Width="6" Height="6" Fill="#1ED760" Margin="0,0,0,8" HorizontalAlignment="Center"/>
-                    <Path x:Name="RightTabArrow"
-                          Data="M 6 0 L 0 6 L 6 12"
-                          Stroke="#FFFFFF"
-                          StrokeThickness="2.5"
-                          StrokeStartLineCap="Round"
-                          StrokeEndLineCap="Round"
-                          StrokeLineJoin="Round"
-                          HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Grid>
+            <Border.BorderThickness><Thickness Left="1.5" Top="1.5" Right="0" Bottom="1.5"/></Border.BorderThickness>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Ellipse x:Name="RightTabDot" Width="6" Height="6" Fill="#1ED760" HorizontalAlignment="Center" Margin="0,0,0,7"/>
+                <Path Data="M 6 0 L 0 6 L 6 12" Stroke="#FFFFFF" StrokeThickness="2.2"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" HorizontalAlignment="Center"/>
+            </StackPanel>
         </Border>
 
-        <!-- Dynamic Island Main Capsule -->
+        <!-- ================================================================ -->
+        <!-- ISLAND CAPSULE                                                    -->
+        <!-- ================================================================ -->
         <Border x:Name="IslandContainer"
                 HorizontalAlignment="Center"
                 Width="320" Height="56"
                 CornerRadius="28"
                 Cursor="Hand"
                 ClipToBounds="True">
+
             <Border.RenderTransform>
                 <TranslateTransform x:Name="IslandTransform" X="0" Y="0"/>
             </Border.RenderTransform>
-            
-            <!-- Dynamic Outer Shadow & Ambient Glow -->
+
+            <!-- Ambient glow shadow -->
             <Border.Effect>
-                <DropShadowEffect x:Name="IslandDropShadow" 
-                                  BlurRadius="28" 
-                                  ShadowDepth="4" 
-                                  Direction="270"
-                                  Color="#1ED760" 
-                                  Opacity="0.5"/>
+                <DropShadowEffect x:Name="IslandDropShadow"
+                                  BlurRadius="32" ShadowDepth="5" Direction="270"
+                                  Color="#1ED760" Opacity="0.45"/>
             </Border.Effect>
 
-            <!-- Background Mesh Glass (Deep Solid Obsidian with Ambient Tint) -->
+            <!-- Glassmorphism background — richer radial tint -->
             <Border.Background>
-                <RadialGradientBrush x:Name="IslandBackdropBrush" Center="0.15,0.4" GradientOrigin="0.15,0.4" RadiusX="0.9" RadiusY="0.9">
-                    <GradientStop x:Name="GlowColorStop" Color="#401ED760" Offset="0.0"/>
-                    <GradientStop x:Name="MidColorStop" Color="#F5141418" Offset="0.5"/>
-                    <GradientStop x:Name="DarkColorStop" Color="#FC101014" Offset="1.0"/>
+                <RadialGradientBrush Center="0.18,0.35" GradientOrigin="0.18,0.35" RadiusX="0.95" RadiusY="0.95">
+                    <GradientStop x:Name="GlowColorStop" Color="#501ED760" Offset="0"/>
+                    <GradientStop Color="#F2101013"       Offset="0.45"/>
+                    <GradientStop x:Name="MidColorStop"   Color="#F80C0C10" Offset="0.75"/>
+                    <GradientStop x:Name="DarkColorStop"  Color="#FC0A0A0E" Offset="1"/>
                 </RadialGradientBrush>
             </Border.Background>
 
-            <!-- 1.5px Ultra-Smooth Border Stroke -->
+            <!-- Refined glass border — top bright / bottom dim -->
             <Border.BorderBrush>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop x:Name="BorderTopStop" Color="#60FFFFFF" Offset="0.0"/>
-                    <GradientStop x:Name="BorderMidStop" Color="#401ED760" Offset="0.4"/>
-                    <GradientStop Color="#25FFFFFF" Offset="1.0"/>
+                    <GradientStop x:Name="BorderTopStop"  Color="#55FFFFFF" Offset="0"/>
+                    <GradientStop x:Name="BorderMidStop"  Color="#351ED760" Offset="0.38"/>
+                    <GradientStop                         Color="#18FFFFFF" Offset="1"/>
                 </LinearGradientBrush>
             </Border.BorderBrush>
             <Border.BorderThickness>
-                <Thickness Left="1.5" Top="1.5" Right="1.5" Bottom="1.5"/>
+                <Thickness Left="1.2" Top="1.2" Right="1.2" Bottom="1.2"/>
             </Border.BorderThickness>
 
             <Grid>
-                <!-- ============================================== -->
-                <!-- COMPACT PILL VIEW (Default)                    -->
-                <!-- ============================================== -->
+
+                <!-- ============================================================ -->
+                <!-- COMPACT PILL VIEW                                             -->
+                <!-- ============================================================ -->
                 <Grid x:Name="PillView" Height="56" VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -288,224 +290,214 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Left: Bigger Spinning Vinyl Disc (38x38) -->
-                    <Grid Grid.Column="0" Margin="9,0,8,0" Width="38" Height="38" VerticalAlignment="Center">
-                        <!-- Vinyl Record Rim -->
-                        <Ellipse Fill="#18181A" Stroke="#35FFFFFF" StrokeThickness="1.2"/>
-                        <Ellipse Width="24" Height="24" Stroke="#25FFFFFF" StrokeThickness="1"/>
-                        
-                        <!-- Thumbnail Image (Rotates when playing - Clipped to Circle) -->
-                        <Image x:Name="MiniCoverImage" Width="38" Height="38" Stretch="UniformToFill" RenderTransformOrigin="0.5,0.5">
-                            <Image.Clip>
-                                <EllipseGeometry Center="19,19" RadiusX="19" RadiusY="19"/>
-                            </Image.Clip>
-                            <Image.RenderTransform>
-                                <RotateTransform x:Name="MiniVinylRotation" Angle="0"/>
-                            </Image.RenderTransform>
+                    <!-- Spinning vinyl disc -->
+                    <Grid Grid.Column="0" Margin="10,0,8,0" Width="36" Height="36" VerticalAlignment="Center">
+                        <Ellipse Fill="#1A1A1C" Stroke="#30FFFFFF" StrokeThickness="1"/>
+                        <Ellipse Width="22" Height="22" Stroke="#22FFFFFF" StrokeThickness="1"/>
+                        <Image x:Name="MiniCoverImage" Width="36" Height="36" Stretch="UniformToFill" RenderTransformOrigin="0.5,0.5">
+                            <Image.Clip><EllipseGeometry Center="18,18" RadiusX="18" RadiusY="18"/></Image.Clip>
+                            <Image.RenderTransform><RotateTransform x:Name="MiniVinylRotation" Angle="0"/></Image.RenderTransform>
                         </Image>
-
-                        <!-- Center Hole Spindle -->
-                        <Ellipse Width="8" Height="8" Fill="#101014" Stroke="#60FFFFFF" StrokeThickness="1.2"/>
+                        <Ellipse Width="7" Height="7" Fill="#0E0E12" Stroke="#55FFFFFF" StrokeThickness="1"/>
                     </Grid>
 
-                    <!-- Center: Track Title & Artist -->
+                    <!-- Task 7: marquee title & artist in pill -->
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="2,0,10,0">
-                        <TextBlock x:Name="PillTitleText" 
-                                   Text="Blinding Lights" 
-                                   Foreground="#FFFFFF" 
-                                   FontSize="13" 
-                                   FontWeight="SemiBold" 
-                                   TextTrimming="CharacterEllipsis"/>
-                        <TextBlock x:Name="PillArtistText" 
-                                   Text="The Weeknd" 
-                                   Foreground="#9E9EA5" 
-                                   FontSize="10.5" 
-                                   TextTrimming="CharacterEllipsis" 
-                                   Margin="0,1,0,0"/>
+                        <controls:MarqueeTextBlock x:Name="PillTitleMarquee"
+                                                   Text="Blinding Lights"
+                                                   TextFontSize="13"
+                                                   TextFontWeight="SemiBold"
+                                                   TextForeground="#FFFFFF"
+                                                   Height="18"/>
+                        <controls:MarqueeTextBlock x:Name="PillArtistMarquee"
+                                                   Text="The Weeknd"
+                                                   TextFontSize="10.5"
+                                                   TextForeground="#9090A0"
+                                                   Height="15"
+                                                   Margin="0,2,0,0"/>
                     </StackPanel>
 
-                    <!-- Right: Mini Visualizer Indicator -->
-                    <Grid Grid.Column="2" Margin="0,0,14,0" VerticalAlignment="Center">
-                        <controls:VisualizerControl x:Name="PillVisualizer" Width="32" Height="18" />
+                    <!-- Mini visualizer -->
+                    <Grid Grid.Column="2" Margin="0,0,13,0" VerticalAlignment="Center">
+                        <controls:VisualizerControl x:Name="PillVisualizer" Width="30" Height="18"/>
                     </Grid>
                 </Grid>
 
-                <!-- ============================================== -->
-                <!-- DYNAMIC VOLUME HUD OVERLAY                     -->
-                <!-- ============================================== -->
-                <Grid x:Name="VolumeHudView" Visibility="Collapsed" Opacity="0" Height="56" VerticalAlignment="Center" Margin="16,0,16,0">
+                <!-- ============================================================ -->
+                <!-- VOLUME HUD OVERLAY                                            -->
+                <!-- ============================================================ -->
+                <Grid x:Name="VolumeHudView" Visibility="Collapsed" Opacity="0" Height="56" VerticalAlignment="Center" Margin="18,0,18,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
-                    <!-- Speaker Icon -->
                     <Path x:Name="VolumeSpeakerIcon" Grid.Column="0" Fill="#1ED760" VerticalAlignment="Center" Margin="2,0,14,0"
-                          Data="M2,6 L5,6 L9,2 L9,14 L5,10 L2,10 Z M11,5 C12.5,6.5 12.5,9.5 11,11" Stretch="Uniform" Width="16" Height="16"/>
-
-                    <!-- Fluid Volume Progress Track -->
+                          Data="M2,6 L5,6 L9,2 L9,14 L5,10 L2,10 Z M11,5 C12.2,6.5 12.2,9.5 11,11"
+                          Stretch="Uniform" Width="16" Height="16"/>
                     <Grid Grid.Column="1" VerticalAlignment="Center" Margin="0,0,14,0" Height="10">
-                        <Border Height="8" CornerRadius="4" Background="#25FFFFFF"/>
+                        <Border Height="8" CornerRadius="4" Background="#22FFFFFF"/>
                         <Border x:Name="VolumeFillBar" Height="8" CornerRadius="4" HorizontalAlignment="Left" Width="120" Background="#1ED760">
                             <Border.Effect>
                                 <DropShadowEffect x:Name="VolumeFillGlow" BlurRadius="10" ShadowDepth="0" Color="#1ED760" Opacity="0.7"/>
                             </Border.Effect>
                         </Border>
                     </Grid>
-
-                    <!-- Volume Percentage Text -->
-                    <TextBlock x:Name="VolumePercentText" Grid.Column="2" Text="68%" 
-                               Foreground="#FFFFFF" FontSize="14" FontWeight="Bold" 
-                               VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBlock x:Name="VolumePercentText" Grid.Column="2" Text="68%"
+                               Foreground="#FFFFFF" FontSize="14" FontWeight="Bold"
+                               VerticalAlignment="Center" Margin="0,0,4,0"/>
                 </Grid>
 
-                <!-- Apple Glass Top Specular Sheen (Physical Glass Reflection) -->
-                <Border x:Name="GlassSheenBorder" CornerRadius="28" IsHitTestVisible="False" VerticalAlignment="Top" Height="30">
+                <!-- Glass sheen (top specular) -->
+                <Border CornerRadius="28" IsHitTestVisible="False" VerticalAlignment="Top" Height="28">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#30FFFFFF" Offset="0.0"/>
-                            <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+                            <GradientStop Color="#28FFFFFF" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
                         </LinearGradientBrush>
                     </Border.Background>
                 </Border>
 
-                <!-- ============================================== -->
-                <!-- EXPANDED ISLAND VIEW (Generous & Rounded)       -->
-                <!-- ============================================== -->
-                <Grid x:Name="ExpandedView" Visibility="Collapsed" Opacity="0" Margin="20,13,20,15">
+                <!-- ============================================================ -->
+                <!-- EXPANDED VIEW                                                 -->
+                <!-- ============================================================ -->
+                <Grid x:Name="ExpandedView" Visibility="Collapsed" Opacity="0" Margin="18,12,18,14">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/> <!-- Header bar -->
-                        <RowDefinition Height="*"/>    <!-- Center content -->
-                        <RowDefinition Height="Auto"/> <!-- Seek slider & controls -->
+                        <RowDefinition Height="Auto"/>  <!-- header bar -->
+                        <RowDefinition Height="*"/>     <!-- content -->
+                        <RowDefinition Height="Auto"/>  <!-- seekbar + controls -->
+                        <RowDefinition Height="Auto"/>  <!-- lyrics (collapsed by default) -->
                     </Grid.RowDefinitions>
 
-                    <!-- 1. Header Bar -->
-                    <Grid Grid.Row="0" Margin="0,0,0,7">
-                        <!-- Spotify Live & Quality Badges -->
+                    <!-- ── Row 0: Header ──────────────────────────────── -->
+                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <!-- Left: status badges -->
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#1ED760" Margin="0,0,7,0">
+                            <Ellipse x:Name="StatusDot" Width="7" Height="7" Fill="#1ED760" Margin="0,0,6,0">
                                 <Ellipse.Effect>
-                                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#1ED760" Opacity="0.85"/>
+                                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#1ED760" Opacity="0.9"/>
                                 </Ellipse.Effect>
                             </Ellipse>
-                            <TextBlock x:Name="AppStatusText" 
-                                       Text="SPOTIFY" 
-                                       Foreground="#B5B5BC" 
-                                       FontSize="11" 
-                                       FontWeight="Bold" 
-                                       VerticalAlignment="Center"/>
-
-                            <!-- Lossless Hi-Fi Audio Badge -->
-                            <Border x:Name="HiFiBadge" 
-                                    Background="#1AFFFFFF" 
-                                    BorderBrush="#25FFFFFF" 
-                                    BorderThickness="1" 
-                                    CornerRadius="6" 
-                                    Padding="6,2" 
-                                    Margin="8,0,0,0">
+                            <TextBlock x:Name="AppStatusText" Text="SPOTIFY"
+                                       Foreground="#A8A8B2" FontSize="10.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <!-- LOSSLESS badge -->
+                            <Border Background="#18FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1"
+                                    CornerRadius="6" Padding="6,2" Margin="8,0,0,0">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Path Fill="#FFD700" Data="M1,4 L3,1 L5,7 L7,2 L9,5" Stroke="#FFD700" StrokeThickness="1.2" Width="9" Height="8" Stretch="Uniform" Margin="0,0,4,0"/>
-                                    <TextBlock Text="LOSSLESS" Foreground="#E0E0E0" FontSize="8.5" FontWeight="Bold"/>
+                                    <Path Fill="#FFD700" Data="M1,4 L3,1 L5,7 L7,2 L9,5"
+                                          Stroke="#FFD700" StrokeThickness="1.2"
+                                          Width="9" Height="8" Stretch="Uniform" Margin="0,0,4,0"/>
+                                    <TextBlock Text="LOSSLESS" Foreground="#D8D8DC" FontSize="8" FontWeight="Bold"/>
                                 </StackPanel>
                             </Border>
-
-                            <Border x:Name="DemoBadge" 
-                                    Background="#30FF8800" 
-                                    CornerRadius="6" 
-                                    Padding="7,2" 
-                                    Margin="8,0,0,0"
-                                    Visibility="Visible">
-                                <TextBlock Text="PREVIEW" Foreground="#FFA500" FontSize="9.5" FontWeight="Bold"/>
+                            <!-- DEMO badge -->
+                            <Border x:Name="DemoBadge" Background="#28FF8800" CornerRadius="6"
+                                    Padding="6,2" Margin="7,0,0,0" Visibility="Visible">
+                                <TextBlock Text="PREVIEW" Foreground="#FFA040" FontSize="9" FontWeight="Bold"/>
                             </Border>
-
-                            <Border x:Name="NowPlayingBadge" 
-                                    Background="#251ED760" 
-                                    BorderBrush="#601ED760" 
-                                    BorderThickness="1" 
-                                    CornerRadius="6" 
-                                    Padding="7,2" 
-                                    Margin="8,0,0,0"
-                                    Visibility="Collapsed">
-                                <TextBlock Text="NOW PLAYING" Foreground="#1ED760" FontSize="9" FontWeight="Bold"/>
+                            <!-- NOW PLAYING badge -->
+                            <Border x:Name="NowPlayingBadge" Background="#201ED760" BorderBrush="#501ED760"
+                                    BorderThickness="1" CornerRadius="6" Padding="6,2" Margin="7,0,0,0" Visibility="Collapsed">
+                                <TextBlock Text="NOW PLAYING" Foreground="#1ED760" FontSize="8.5" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
 
-                        <!-- Top Action Icons -->
+                        <!-- Right: action buttons -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <!-- Toggle Demo Mode -->
-                            <Button x:Name="DemoButton" Style="{StaticResource IconButtonStyle}" 
-                                    Padding="7,3" Margin="0,0,5,0" ToolTip="Cycle Demo Tracks" Click="OnDemoClick">
-                                <TextBlock Text="Demo ↺" FontSize="11" Foreground="#BBBBBB"/>
+                            <!-- Demo -->
+                            <Button x:Name="DemoButton" Style="{StaticResource IconButtonStyle}"
+                                    Padding="6,3" ToolTip="Cycle Demo Tracks" Click="OnDemoClick">
+                                <TextBlock Text="Demo ↺" FontSize="10.5" Foreground="#AAAAAA"/>
                             </Button>
-
-                            <!-- Focus Spotify Window -->
-                            <Button Style="{StaticResource IconButtonStyle}" Padding="6" Margin="0,0,3,0" 
-                                    ToolTip="Bring Spotify to Front" Click="OnFocusSpotifyClick">
-                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" 
-                                      Data="M2,2 H10 V4 H4 V10 H2 Z M6,6 H14 V14 H6 Z" Width="13" Height="13" Stretch="Uniform"/>
-                            </Button>
-
-                            <!-- Auto-Bloom on Track Change Toggle -->
-                            <Button x:Name="BloomButton" Style="{StaticResource IconButtonStyle}" Padding="6" Margin="0,0,3,0" 
-                                    ToolTip="Auto-Bloom: Expand on track change (Active)" Click="OnBloomToggleClick">
-                                <Path x:Name="BloomIconPath" Fill="#1ED760" 
-                                      Data="M7,1 L8.5,5 L12.5,5 L9.5,7.5 L10.5,11.5 L7,9 L3.5,11.5 L4.5,7.5 L1.5,5 L5.5,5 Z" 
-                                      Width="12" Height="12" Stretch="Uniform"/>
-                            </Button>
-
-                            <!-- Pin Island Open -->
-                            <Button x:Name="PinButton" Style="{StaticResource IconButtonStyle}" Padding="6" Margin="0,0,3,0" 
-                                    ToolTip="Pin (Stay Expanded)" Click="OnPinClick">
-                                <Path x:Name="PinIconPath" Fill="#888888" 
-                                      Data="M5,1 L9,1 L9,3 L8,4 L8,8 L10,10 L7,10 L7,14 L6,14 L6,10 L3,10 L5,8 L5,4 L4,3 L4,1 Z" 
+                            <Button x:Name="OpenSpotifyButton" Style="{StaticResource IconButtonStyle}"
+                                    Padding="6" Visibility="Collapsed"
+                                    ToolTip="Open Spotify" Click="OnOpenSpotifyClick">
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                      Data="M3,3 H11 V5 H6.4 L13,11.6 L11.6,13 L5,6.4 V11 H3 Z M12,3 H15 V6 H13 V5 H12 Z"
                                       Width="13" Height="13" Stretch="Uniform"/>
                             </Button>
-
-                            <!-- Snap to Top Center -->
-                            <Button Style="{StaticResource IconButtonStyle}" Padding="6" Margin="0,0,3,0" 
-                                    ToolTip="Snap to Top-Center" Click="OnSnapTopClick">
-                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" 
-                                      Data="M7,1 L1,7 L4,7 L4,13 L10,13 L10,7 L13,7 Z" Width="12" Height="12" Stretch="Uniform"/>
+                            <!-- Lyrics toggle (Task 11) -->
+                            <Button x:Name="LyricsButton" Style="{StaticResource IconButtonStyle}"
+                                    Padding="6" Opacity="0.35"
+                                    ToolTip="Toggle Lyrics" Click="OnLyricsToggleClick">
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                      Data="M3,5 H15 M3,9 H13 M3,13 H10" Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                      StrokeThickness="1.6" Width="14" Height="12" Stretch="Uniform"/>
                             </Button>
-
-                            <!-- Collapse Button -->
-                            <Button Style="{StaticResource IconButtonStyle}" Padding="6" 
+                            <!-- Focus Spotify -->
+                            <Button Style="{StaticResource IconButtonStyle}" Padding="6"
+                                    ToolTip="Bring Spotify to Front" Click="OnFocusSpotifyClick">
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                      Data="M2,2 H10 V4 H4 V10 H2 Z M6,6 H14 V14 H6 Z"
+                                      Width="13" Height="13" Stretch="Uniform"/>
+                            </Button>
+                            <!-- Auto-Bloom -->
+                            <Button x:Name="BloomButton" Style="{StaticResource IconButtonStyle}" Padding="6"
+                                    ToolTip="Auto-Bloom: Expand on track change (Active)" Click="OnBloomToggleClick">
+                                <Path x:Name="BloomIconPath" Fill="#1ED760"
+                                      Data="M7,1 L8.5,5 L12.5,5 L9.5,7.5 L10.5,11.5 L7,9 L3.5,11.5 L4.5,7.5 L1.5,5 L5.5,5 Z"
+                                      Width="12" Height="12" Stretch="Uniform"/>
+                            </Button>
+                            <!-- Settings (Task 14) -->
+                            <Button Style="{StaticResource IconButtonStyle}" Padding="6"
+                                    ToolTip="Settings" Click="OnSettingsClick">
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                      Data="M12,15.5 A3.5,3.5 0 0,1 8.5,12 A3.5,3.5 0 0,1 12,8.5 A3.5,3.5 0 0,1 15.5,12 A3.5,3.5 0 0,1 12,15.5 M19.43,12.97 C19.47,12.65 19.5,12.33 19.5,12 C19.5,11.67 19.47,11.34 19.43,11 L21.54,9.37 C21.73,9.22 21.78,8.95 21.66,8.73 L19.66,5.27 C19.54,5.05 19.27,4.96 19.05,5.05 L16.56,6.05 C16.04,5.65 15.48,5.32 14.87,5.07 L14.49,2.42 C14.46,2.18 14.25,2 14,2 H10 C9.75,2 9.54,2.18 9.51,2.42 L9.13,5.07 C8.52,5.32 7.96,5.66 7.44,6.05 L4.95,5.05 C4.72,4.96 4.46,5.05 4.34,5.27 L2.34,8.73 C2.21,8.95 2.27,9.22 2.46,9.37 L4.57,11 C4.53,11.34 4.5,11.67 4.5,12 C4.5,12.33 4.53,12.65 4.57,12.97 L2.46,14.63 C2.27,14.78 2.21,15.05 2.34,15.27 L4.34,18.73 C4.46,18.95 4.72,19.03 4.95,18.95 L7.44,17.94 C7.96,18.34 8.52,18.68 9.13,18.93 L9.51,21.58 C9.54,21.82 9.75,22 10,22 H14 C14.25,22 14.46,21.82 14.49,21.58 L14.87,18.93 C15.48,18.67 16.04,18.34 16.56,17.94 L19.05,18.95 C19.27,19.03 19.54,18.95 19.66,18.73 L21.66,15.27 C21.78,15.05 21.73,14.78 21.54,14.63 L19.43,12.97 Z"
+                                      Width="13" Height="13" Stretch="Uniform"/>
+                            </Button>
+                            <!-- Pin -->
+                            <Button x:Name="PinButton" Style="{StaticResource IconButtonStyle}" Padding="6"
+                                    ToolTip="Pin (Stay Expanded)" Click="OnPinClick">
+                                <Path x:Name="PinIconPath" Fill="#888888"
+                                      Data="M5,1 L9,1 L9,3 L8,4 L8,8 L10,10 L7,10 L7,14 L6,14 L6,10 L3,10 L5,8 L5,4 L4,3 L4,1 Z"
+                                      Width="12" Height="13" Stretch="Uniform"/>
+                            </Button>
+                            <!-- Snap to top -->
+                            <Button Style="{StaticResource IconButtonStyle}" Padding="6"
+                                    ToolTip="Snap to Top-Center" Click="OnSnapTopClick">
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                      Data="M7,1 L1,7 L4,7 L4,13 L10,13 L10,7 L13,7 Z"
+                                      Width="12" Height="12" Stretch="Uniform"/>
+                            </Button>
+                            <!-- Collapse -->
+                            <Button Style="{StaticResource IconButtonStyle}" Padding="6"
                                     ToolTip="Collapse to Pill" Click="OnCollapseClick">
-                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" 
-                                      Data="M1,6 L6,1 L11,6" Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" 
-                                      StrokeThickness="1.6" Width="12" Height="8" Stretch="Uniform"/>
+                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                      Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                      Data="M1,6 L6,1 L11,6" StrokeThickness="1.5"
+                                      Width="12" Height="8" Stretch="Uniform"/>
                             </Button>
                         </StackPanel>
                     </Grid>
 
-                    <!-- 2. Center Content: Large Cover + Info + Visualizer -->
-                    <Grid Grid.Row="1" Margin="0,2,0,8">
+                    <!-- ── Row 1: Album art + track info ─────────────── -->
+                    <Grid Grid.Row="1" Margin="0,2,0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Large Rounded Album Cover Artwork (88x88, radius 22) -->
-                        <Grid Grid.Column="0" Width="88" Height="88" Margin="0,0,18,0">
-                            <!-- Soft ambient aura behind artwork -->
-                            <Border CornerRadius="22" Background="#15FFFFFF">
+                        <!-- Album cover — Task 9: hover zoom, Task 12: right-click menu -->
+                        <Grid Grid.Column="0" Width="92" Height="92" Margin="0,0,18,0"
+                              MouseEnter="OnAlbumCoverMouseEnter"
+                              MouseLeave="OnAlbumCoverMouseLeave"
+                              MouseRightButtonDown="OnAlbumCoverRightClick"
+                              Cursor="Hand">
+                            <Border CornerRadius="20" Background="#12FFFFFF">
                                 <Border.Effect>
-                                    <DropShadowEffect x:Name="AlbumCoverGlow" BlurRadius="26" ShadowDepth="3" Color="#1ED760" Opacity="0.55"/>
+                                    <DropShadowEffect x:Name="AlbumCoverGlow" BlurRadius="28" ShadowDepth="4" Color="#1ED760" Opacity="0.50"/>
                                 </Border.Effect>
                             </Border>
-
-                            <Image x:Name="LargeCoverImage" Width="88" Height="88" Stretch="UniformToFill">
+                            <Image x:Name="LargeCoverImage" Width="92" Height="92" Stretch="UniformToFill" RenderTransformOrigin="0.5,0.5">
                                 <Image.Clip>
-                                    <RectangleGeometry Rect="0,0,88,88" RadiusX="22" RadiusY="22"/>
+                                    <RectangleGeometry Rect="0,0,92,92" RadiusX="20" RadiusY="20"/>
                                 </Image.Clip>
                             </Image>
-
-                            <!-- Subtle inner border sheen on cover -->
-                            <Border CornerRadius="22" BorderBrush="#25FFFFFF" BorderThickness="1.2" IsHitTestVisible="False"/>
+                            <!-- inner sheen border -->
+                            <Border CornerRadius="20" BorderBrush="#22FFFFFF" BorderThickness="1.2" IsHitTestVisible="False"/>
                         </Grid>
 
-                        <!-- Track Info & Visualizer Column -->
+                        <!-- Track info -->
                         <Grid Grid.Column="1" VerticalAlignment="Center">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -514,207 +506,326 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Track Title & Interactive Favorite Heart -->
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="LargeTitleText" 
-                                           Text="Blinding Lights" 
-                                           Foreground="#FFFFFF" 
-                                           FontSize="16.5" 
-                                           FontWeight="Bold" 
-                                           MaxWidth="320"
-                                           TextTrimming="CharacterEllipsis"
-                                           VerticalAlignment="Center"/>
-
-                                <!-- Like / Favorite Toggle Button -->
-                                <Button x:Name="FavoriteButton" 
-                                        Style="{StaticResource IconButtonStyle}" 
-                                        Margin="10,0,0,0" 
-                                        Padding="4"
-                                        ToolTip="Save to Your Library" 
-                                        Click="OnFavoriteClick"
+                            <!-- Title + favorite -->
+                            <DockPanel Grid.Row="0" LastChildFill="True">
+                                <!-- Task 7: marquee title -->
+                                <Button x:Name="FavoriteButton"
+                                        DockPanel.Dock="Right"
+                                        Style="{StaticResource IconButtonStyle}"
+                                        Margin="8,0,0,0" Padding="4"
+                                        ToolTip="Save to Your Library" Click="OnFavoriteClick"
                                         VerticalAlignment="Center">
-                                    <Path x:Name="FavoriteHeartPath" 
-                                          Data="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z" 
-                                          Fill="Transparent" 
-                                          Stroke="#9E9EA8" 
-                                          StrokeThickness="1.8" 
-                                          Width="14" Height="14" 
-                                          Stretch="Uniform"
-                                          RenderTransformOrigin="0.5,0.5">
-                                        <Path.RenderTransform>
-                                            <ScaleTransform x:Name="FavoriteHeartTransform" ScaleX="1.0" ScaleY="1.0"/>
-                                        </Path.RenderTransform>
-                                    </Path>
+                                    <Path x:Name="FavoriteHeartPath"
+                                          Data="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"
+                                          Fill="Transparent" Stroke="#9090A0" StrokeThickness="1.8"
+                                          Width="14" Height="14" Stretch="Uniform"/>
                                 </Button>
-                            </StackPanel>
+                                <controls:MarqueeTextBlock x:Name="LargeTitleMarquee"
+                                                           Text="Blinding Lights"
+                                                           TextFontSize="16"
+                                                           TextFontWeight="Bold"
+                                                           TextForeground="#FFFFFF"
+                                                           Height="22"
+                                                           VerticalAlignment="Center"/>
+                            </DockPanel>
 
                             <!-- Artist & Album -->
-                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,2,0,5">
-                                <TextBlock x:Name="LargeArtistText" 
-                                           Text="The Weeknd" 
-                                           Foreground="#B8B8C0" 
-                                           FontSize="12" 
-                                           FontWeight="Medium" 
-                                           MaxWidth="180"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text=" • " Foreground="#666666" FontSize="12"/>
-                                <TextBlock x:Name="LargeAlbumText" 
-                                           Text="After Hours" 
-                                           Foreground="#8A8A92" 
-                                           FontSize="11.5" 
-                                           MaxWidth="160"
-                                           TextTrimming="CharacterEllipsis"/>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,6">
+                                <!-- Task 7: marquee artist -->
+                                <controls:MarqueeTextBlock x:Name="LargeArtistMarquee"
+                                                           Text="The Weeknd"
+                                                           TextFontSize="12"
+                                                           TextForeground="#A0A0B0"
+                                                           Height="17"
+                                                           MaxWidth="160"/>
+                                <TextBlock Text=" • " Foreground="#555560" FontSize="12" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="LargeAlbumText"
+                                           Text="After Hours" Foreground="#787882" FontSize="11.5"
+                                           MaxWidth="130" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <!-- Audio Device & Stream Quality Badges -->
-                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,6">
-                                <Border Background="#16FFFFFF" BorderBrush="#20FFFFFF" BorderThickness="1" CornerRadius="7" Padding="6,2" Margin="0,0,6,0">
+                            <!-- Badges row -->
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,7">
+                                <Border Background="#14FFFFFF" BorderBrush="#1CFFFFFF" BorderThickness="1" CornerRadius="6" Padding="6,2" Margin="0,0,6,0">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Path Fill="#1ED760" Data="M3,9 A9,9 0 0,1 21,9 V16 A3,3 0 0,1 18,19 H17 V13 H19 V9 A7,7 0 0,0 5,9 V13 H7 V19 H6 A3,3 0 0,1 3,16 Z" Width="10" Height="10" Stretch="Uniform" Margin="0,0,4,0"/>
-                                        <TextBlock x:Name="AudioDeviceText" Text="HEADPHONES" Foreground="#D5D5DC" FontSize="9" FontWeight="SemiBold"/>
+                                        <Path Fill="#1ED760"
+                                              Data="M3,9 A9,9 0 0,1 21,9 V16 A3,3 0 0,1 18,19 H17 V13 H19 V9 A7,7 0 0,0 5,9 V13 H7 V19 H6 A3,3 0 0,1 3,16 Z"
+                                              Width="10" Height="10" Stretch="Uniform" Margin="0,0,4,0"/>
+                                        <TextBlock x:Name="AudioDeviceText" Text="HEADPHONES"
+                                                   Foreground="#C8C8D4" FontSize="8.5" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Border>
-                                <Border Background="#12FFFFFF" CornerRadius="7" Padding="6,2">
-                                    <TextBlock Text="320 KBPS MASTER" Foreground="#888892" FontSize="8.5" FontWeight="Bold"/>
+                                <Border Background="#10FFFFFF" CornerRadius="6" Padding="6,2">
+                                    <TextBlock Text="320 KBPS" Foreground="#70707A" FontSize="8.5" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
 
-                            <!-- Large Audio Visualizer (18 bars) -->
+                            <!-- Visualizer -->
                             <Grid Grid.Row="3" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="180">
                                 <controls:VisualizerControl x:Name="LargeVisualizer" Height="20" Width="180"/>
                             </Grid>
                         </Grid>
                     </Grid>
 
-                    <!-- 3. Bottom Area: Seekbar + Transport Controls -->
+                    <!-- ── Row 2: Seekbar + transport controls ─────────── -->
                     <Grid Grid.Row="2" Margin="0,2,0,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- Timeline & Timestamps -->
-                        <Grid Grid.Row="0" Margin="0,0,0,6">
+                        <!-- Seekbar -->
+                        <Grid Grid.Row="0" Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-
-                            <TextBlock x:Name="CurrentTimeText" Grid.Column="0" Text="0:24" 
-                                       Foreground="#A0A0A8" FontSize="11" FontWeight="SemiBold" 
+                            <TextBlock x:Name="CurrentTimeText" Grid.Column="0" Text="0:24"
+                                       Foreground="#8888A0" FontSize="10.5" FontWeight="SemiBold"
                                        Margin="0,0,10,0" VerticalAlignment="Center"/>
-
-                            <Slider x:Name="SeekSlider" Grid.Column="1" 
-                                    Style="{StaticResource SleekSlider}" 
+                            <Slider x:Name="SeekSlider" Grid.Column="1"
+                                    Style="{StaticResource SleekSlider}"
                                     VerticalAlignment="Center"
                                     PreviewMouseDown="OnSeekSliderMouseDown"
                                     PreviewMouseUp="OnSeekSliderMouseUp"
                                     ValueChanged="OnSeekSliderValueChanged"/>
-
-                            <TextBlock x:Name="TotalTimeText" Grid.Column="2" Text="3:20" 
-                                       Foreground="#A0A0A8" FontSize="11" FontWeight="SemiBold" 
+                            <TextBlock x:Name="TotalTimeText" Grid.Column="2" Text="3:20"
+                                       Foreground="#8888A0" FontSize="10.5" FontWeight="SemiBold"
                                        Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </Grid>
 
-                        <!-- Playback Control Buttons -->
+                        <!-- Transport controls -->
                         <Grid Grid.Row="1">
-                            <!-- Left: Volume Controls + Percentage -->
+                            <!-- Left: volume -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                <Button Style="{StaticResource IconButtonStyle}" Width="28" Height="28" 
+                                <Button Style="{StaticResource IconButtonStyle}" Width="28" Height="28"
                                         ToolTip="Volume Down" Click="OnVolumeDownClick">
-                                    <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" 
+                                    <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                           Data="M2,5 L5,5 L9,1 L9,13 L5,9 L2,9 Z" Width="11" Height="11" Stretch="Uniform"/>
                                 </Button>
-                                <Button Style="{StaticResource IconButtonStyle}" Width="28" Height="28" 
-                                        ToolTip="Volume Up" Click="OnVolumeUpClick" Margin="2,0,0,0">
-                                    <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" 
-                                          Data="M2,5 L5,5 L9,1 L9,13 L5,9 L2,9 Z M11,4 C12.5,5.5 12.5,8.5 11,10" 
-                                          Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" 
-                                          StrokeThickness="1.3" Width="12" Height="11" Stretch="Uniform"/>
+                                <Button Style="{StaticResource IconButtonStyle}" Width="28" Height="28"
+                                        ToolTip="Volume Up" Click="OnVolumeUpClick" Margin="3,0,0,0">
+                                    <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                          Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                          Data="M2,5 L5,5 L9,1 L9,13 L5,9 L2,9 Z M11,4 C12.5,5.5 12.5,8.5 11,10"
+                                          StrokeThickness="1.2" Width="12" Height="11" Stretch="Uniform"/>
                                 </Button>
-                                <TextBlock x:Name="ControlsVolumeText" Text="68%" Foreground="#7A7A84" FontSize="10.5" FontWeight="SemiBold" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                <TextBlock x:Name="ControlsVolumeText" Text="68%"
+                                           Foreground="#686878" FontSize="10" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Margin="5,0,0,0"/>
                             </StackPanel>
 
-                            <!-- Center: Track Transport Controls (Large & Extra Rounded) -->
+                            <!-- Center: playback -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <!-- Shuffle Toggle -->
-                                <Button x:Name="ShuffleButton" Style="{StaticResource IconButtonStyle}" ToolTip="Shuffle: Off" Click="OnShuffleClick" Margin="0,0,8,0">
-                                    <Path x:Name="ShuffleIconPath" Fill="#888888" 
-                                          Data="M10.59,9.17 L5.41,4 L4,5.41 L9.17,10.59 L10.59,9.17 Z M14.5,4 L16.54,6.04 L4,18.59 L5.41,20 L17.96,7.46 L20,9.5 V4 H14.5 Z M14.83,13.41 L13.42,14.82 L16.55,17.95 L14.5,20 H20 V14.5 L17.96,16.54 L14.83,13.41 Z" 
+                                <!-- Shuffle -->
+                                <Button x:Name="ShuffleButton" Style="{StaticResource IconButtonStyle}"
+                                        ToolTip="Shuffle: Off" Click="OnShuffleClick" Margin="0,0,8,0">
+                                    <Path x:Name="ShuffleIconPath" Fill="#888888"
+                                          Data="M10.59,9.17 L5.41,4 L4,5.41 L9.17,10.59 L10.59,9.17 Z M14.5,4 L16.54,6.04 L4,18.59 L5.41,20 L17.96,7.46 L20,9.5 V4 H14.5 Z M14.83,13.41 L13.42,14.82 L16.55,17.95 L14.5,20 H20 V14.5 L17.96,16.54 L14.83,13.41 Z"
                                           Width="13" Height="13" Stretch="Uniform"/>
                                 </Button>
-
-                                <!-- Previous Track -->
+                                <!-- Previous -->
                                 <Button Style="{StaticResource RoundControlButtonStyle}" ToolTip="Previous Track" Click="OnPreviousClick">
-                                    <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" 
+                                    <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                           Data="M10,2 L3,7 L10,12 Z M2,2 H3 V12 H2 Z" Width="13" Height="13" Stretch="Uniform"/>
                                 </Button>
-
-                                <!-- Rewind 10s -->
-                                <Button Style="{StaticResource RoundControlButtonStyle}" ToolTip="Rewind 10s" Click="OnRewind10Click" Margin="6,0,0,0">
-                                    <TextBlock Text="-10" FontSize="10.5" FontWeight="Bold" Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
+                                <!-- Rewind 10 -->
+                                <Button Style="{StaticResource RoundControlButtonStyle}" ToolTip="Rewind 10s" Click="OnRewind10Click" Margin="5,0,0,0">
+                                    <TextBlock Text="-10" FontSize="10" FontWeight="Bold"
+                                               Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
                                 </Button>
-
-                                <!-- MASTER PLAY / PAUSE BUTTON (46x46 circular) -->
-                                <Button x:Name="PlayPauseButton" Width="46" Height="46" Margin="10,0" Cursor="Hand" Click="OnPlayPauseClick">
+                                <!-- Play/Pause -->
+                                <Button x:Name="PlayPauseButton" Width="48" Height="48" Margin="9,0" Cursor="Hand" Click="OnPlayPauseClick">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
-                                            <Border x:Name="PlayPauseButtonBorder" Width="46" Height="46" CornerRadius="23" Background="#1ED760">
+                                            <Border x:Name="PlayPauseButtonBorder" Width="48" Height="48" CornerRadius="24" Background="#1ED760">
                                                 <Border.Effect>
-                                                    <DropShadowEffect x:Name="PlayButtonGlow" BlurRadius="18" ShadowDepth="0" Color="#1ED760" Opacity="0.8"/>
+                                                    <DropShadowEffect x:Name="PlayButtonGlow" BlurRadius="20" ShadowDepth="0" Color="#1ED760" Opacity="0.85"/>
                                                 </Border.Effect>
                                                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                    <!-- Play Icon -->
-                                                    <Path x:Name="PlayIcon" Fill="#0E0E10" Data="M2,1 L13,7.5 L2,14 Z" Width="13" Height="14" Stretch="Uniform" Margin="2,0,0,0"/>
-                                                    <!-- Pause Icon -->
-                                                    <Path x:Name="PauseIcon" Fill="#0E0E10" Data="M2,1 H5.5 V14 H2 Z M8.5,1 H12 V14 H8.5 Z" Width="12" Height="14" Stretch="Uniform" Visibility="Collapsed"/>
+                                                    <Path x:Name="PlayIcon"  Fill="#0C0C10" Data="M2,1 L13,7.5 L2,14 Z" Width="14" Height="15" Stretch="Uniform" Margin="3,0,0,0"/>
+                                                    <Path x:Name="PauseIcon" Fill="#0C0C10" Data="M2,1 H5.5 V14 H2 Z M8.5,1 H12 V14 H8.5 Z" Width="13" Height="15" Stretch="Uniform" Visibility="Collapsed"/>
                                                 </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="PlayPauseButtonBorder" Property="Opacity" Value="0.9"/>
+                                                    <Setter TargetName="PlayPauseButtonBorder" Property="Opacity" Value="0.88"/>
                                                 </Trigger>
                                                 <Trigger Property="IsPressed" Value="True">
-                                                    <Setter TargetName="PlayPauseButtonBorder" Property="Opacity" Value="0.75"/>
+                                                    <Setter TargetName="PlayPauseButtonBorder" Property="Opacity" Value="0.72"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </Button.Template>
                                 </Button>
-
-                                <!-- Fast-Forward 10s -->
-                                <Button Style="{StaticResource RoundControlButtonStyle}" ToolTip="Skip Forward 10s" Click="OnFastForward10Click" Margin="0,0,6,0">
-                                    <TextBlock Text="+10" FontSize="10.5" FontWeight="Bold" Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
+                                <!-- Fast-forward 10 -->
+                                <Button Style="{StaticResource RoundControlButtonStyle}" ToolTip="Skip Forward 10s" Click="OnFastForward10Click" Margin="0,0,5,0">
+                                    <TextBlock Text="+10" FontSize="10" FontWeight="Bold"
+                                               Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
                                 </Button>
-
-                                <!-- Next Track -->
+                                <!-- Next -->
                                 <Button Style="{StaticResource RoundControlButtonStyle}" ToolTip="Next Track" Click="OnNextClick">
-                                    <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}" 
+                                    <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
                                           Data="M2,2 L9,7 L2,12 Z M9,2 H10 V12 H9 Z" Width="13" Height="13" Stretch="Uniform"/>
                                 </Button>
-
-                                <!-- Repeat Toggle -->
-                                <Button x:Name="RepeatButton" Style="{StaticResource IconButtonStyle}" ToolTip="Repeat: Off" Click="OnRepeatClick" Margin="8,0,0,0">
+                                <!-- Repeat -->
+                                <Button x:Name="RepeatButton" Style="{StaticResource IconButtonStyle}"
+                                        ToolTip="Repeat: Off" Click="OnRepeatClick" Margin="8,0,0,0">
                                     <Grid>
-                                        <Path x:Name="RepeatIconPath" Fill="#888888" 
-                                              Data="M7,7 H17 V10 L21,6 L17,2 V5 H5 V11 H7 V7 Z M17,17 H7 V14 L3,18 L7,22 V19 H19 V13 H17 V17 Z" 
+                                        <Path x:Name="RepeatIconPath" Fill="#888888"
+                                              Data="M7,7 H17 V10 L21,6 L17,2 V5 H5 V11 H7 V7 Z M17,17 H7 V14 L3,18 L7,22 V19 H19 V13 H17 V17 Z"
                                               Width="13" Height="13" Stretch="Uniform"/>
-                                        <TextBlock x:Name="RepeatBadgeText" Text="1" Foreground="#1ED760" FontSize="7.5" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                                        <TextBlock x:Name="RepeatBadgeText" Text="1" Foreground="#1ED760"
+                                                   FontSize="7" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Visibility="Collapsed"/>
                                     </Grid>
                                 </Button>
                             </StackPanel>
 
-                            <!-- Right: Shortcut Tip -->
+                            <!-- Right: shortcut hint -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                <Border Background="#15FFFFFF" BorderBrush="#18FFFFFF" BorderThickness="1" CornerRadius="8" Padding="7,3" ToolTip="Global Hotkeys: Ctrl+Alt+Space (Play/Pause), Ctrl+Alt+Arrows (Next/Prev)">
-                                    <TextBlock Text="Ctrl+Alt+Space" Foreground="#777777" FontSize="9.5"/>
+                                <Border Background="#12FFFFFF" BorderBrush="#16FFFFFF" BorderThickness="1" CornerRadius="7" Padding="6,3"
+                                        ToolTip="Global Hotkeys: Ctrl+Alt+Space (Play/Pause), Ctrl+Alt+Arrows (Next/Prev/Volume)">
+                                    <TextBlock Text="Ctrl+Alt+⎵" Foreground="#666670" FontSize="9"/>
                                 </Border>
                             </StackPanel>
                         </Grid>
                     </Grid>
+
+                    <!-- ── Row 3: Lyrics overlay (Task 11) ───────────── -->
+                    <Border x:Name="LyricsView" Grid.Row="3"
+                            Visibility="Collapsed" Opacity="0"
+                            Margin="0,10,0,0"
+                            Background="#0CFFFFFF"
+                            CornerRadius="12"
+                            Padding="12,8"
+                            MaxHeight="90">
+                        <ScrollViewer x:Name="LyricsScrollViewer"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel x:Name="LyricsPanel" Orientation="Vertical"/>
+                        </ScrollViewer>
+                    </Border>
+
                 </Grid>
+                <!-- End ExpandedView -->
+
+                <!-- ============================================================ -->
+                <!-- SETTINGS PANEL (Task 14) — slides over expanded view          -->
+                <!-- ============================================================ -->
+                <Border x:Name="SettingsPanel"
+                        Visibility="Collapsed" Opacity="0"
+                        CornerRadius="28"
+                        Background="#F0101014"
+                        Margin="0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20,16">
+                        <StackPanel>
+                            <!-- Title -->
+                            <TextBlock Text="⚙  Settings" Foreground="#DDDDEA"
+                                       FontSize="14" FontWeight="SemiBold" Margin="0,0,0,18"/>
+
+                            <!-- Collapse delay -->
+                            <StackPanel>
+                                <DockPanel LastChildFill="False">
+                                    <TextBlock Text="Auto-collapse delay" Foreground="#A0A0B0" FontSize="11.5" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="CollapseDelayLabel" Text="1.6s"
+                                               Foreground="#1ED760" FontSize="11.5" FontWeight="Bold"
+                                               DockPanel.Dock="Right" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <Slider x:Name="CollapseDelaySlider" Style="{StaticResource SettingsSlider}"
+                                        Value="1600"
+                                        Margin="0,6,0,0"
+                                        ValueChanged="OnCollapseDelayChanged"/>
+                            </StackPanel>
+
+                            <!-- Auto-bloom toggle -->
+                            <DockPanel LastChildFill="False">
+                                <TextBlock Text="Auto-Bloom on track change" Foreground="#A0A0B0" FontSize="11.5" VerticalAlignment="Center"/>
+                                <Button DockPanel.Dock="Right"
+                                        Style="{StaticResource IconButtonStyle}" Padding="6,3"
+                                        ToolTip="Toggle Auto-Bloom" Click="OnBloomToggleClick">
+                                    <Path x:Name="SettingsBloomPath" Fill="#1ED760"
+                                          Data="M7,1 L8.5,5 L12.5,5 L9.5,7.5 L10.5,11.5 L7,9 L3.5,11.5 L4.5,7.5 L1.5,5 L5.5,5 Z"
+                                          Width="12" Height="12" Stretch="Uniform"/>
+                                </Button>
+                            </DockPanel>
+
+                            <StackPanel Margin="0,14,0,0">
+                                <TextBlock Text="Output device" Foreground="#A0A0B0" FontSize="11.5" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="AudioDevicePicker" Style="{StaticResource SettingsComboBox}"
+                                          DisplayMemberPath="Name" Width="260" HorizontalAlignment="Left"
+                                          SelectionChanged="OnAudioDeviceSelectionChanged"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,14,0,0">
+                                <CheckBox x:Name="FocusModeToggle" Content="Focus mode" Foreground="#D8D8E0"
+                                          FontSize="11.5" Checked="OnFocusModeChanged" Unchecked="OnFocusModeChanged"/>
+                                <TextBlock Text="Hide the visualizer and keep playback controls quiet."
+                                           Foreground="#70707A" FontSize="9.5" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,12,0,0">
+                                <CheckBox x:Name="CompactLyricsToggle" Content="Compact lyrics" Foreground="#D8D8E0"
+                                          FontSize="11.5" Checked="OnCompactLyricsChanged" Unchecked="OnCompactLyricsChanged"/>
+                                <TextBlock Text="Show only the current and upcoming line."
+                                           Foreground="#70707A" FontSize="9.5" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,14,0,0">
+                                <TextBlock Text="Global hotkeys" Foreground="#A0A0B0" FontSize="11.5" Margin="0,0,0,5"/>
+                                <TextBlock Text="All shortcuts use Ctrl+Alt plus the selected key."
+                                           Foreground="#70707A" FontSize="9.5" Margin="0,0,0,7"/>
+                                <DockPanel Margin="0,0,0,5">
+                                    <TextBlock Text="Play / Pause" Foreground="#C0C0CA" FontSize="10.5" VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="PlayPauseHotkeyPicker" Style="{StaticResource SettingsComboBox}"
+                                              DockPanel.Dock="Right" SelectionChanged="OnHotkeySelectionChanged">
+                                        <ComboBoxItem Content="Space"/><ComboBoxItem Content="P"/><ComboBoxItem Content="N"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel Margin="0,0,0,5">
+                                    <TextBlock Text="Next track" Foreground="#C0C0CA" FontSize="10.5" VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="NextHotkeyPicker" Style="{StaticResource SettingsComboBox}"
+                                              DockPanel.Dock="Right" SelectionChanged="OnHotkeySelectionChanged">
+                                        <ComboBoxItem Content="Right"/><ComboBoxItem Content="N"/><ComboBoxItem Content="P"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel Margin="0,0,0,5">
+                                    <TextBlock Text="Previous track" Foreground="#C0C0CA" FontSize="10.5" VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="PreviousHotkeyPicker" Style="{StaticResource SettingsComboBox}"
+                                              DockPanel.Dock="Right" SelectionChanged="OnHotkeySelectionChanged">
+                                        <ComboBoxItem Content="Left"/><ComboBoxItem Content="B"/><ComboBoxItem Content="P"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel Margin="0,0,0,5">
+                                    <TextBlock Text="Volume up" Foreground="#C0C0CA" FontSize="10.5" VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="VolumeUpHotkeyPicker" Style="{StaticResource SettingsComboBox}"
+                                              DockPanel.Dock="Right" SelectionChanged="OnHotkeySelectionChanged">
+                                        <ComboBoxItem Content="Up"/><ComboBoxItem Content="+"/><ComboBoxItem Content="P"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel>
+                                    <TextBlock Text="Volume down" Foreground="#C0C0CA" FontSize="10.5" VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="VolumeDownHotkeyPicker" Style="{StaticResource SettingsComboBox}"
+                                              DockPanel.Dock="Right" SelectionChanged="OnHotkeySelectionChanged">
+                                        <ComboBoxItem Content="Down"/><ComboBoxItem Content="-"/><ComboBoxItem Content="B"/>
+                                    </ComboBox>
+                                </DockPanel>
+                            </StackPanel>
+
+                            <!-- Close button -->
+                            <Button Style="{StaticResource IconButtonStyle}" Padding="8,5"
+                                    HorizontalAlignment="Center" Click="OnSettingsClick">
+                                <TextBlock Text="Close" Foreground="#9090A0" FontSize="11"/>
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
             </Grid>
         </Border>
+        <!-- End IslandContainer -->
+
     </Grid>
 </Window>

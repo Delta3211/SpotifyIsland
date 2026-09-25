@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using NAudio.Wave;
+using Microsoft.Win32;
 
 namespace SpotifyIsland.Services;
 
@@ -13,9 +14,15 @@ public class AudioCaptureService : IDisposable
 
     public const int BandCount = 18;
     private readonly float[] _currentBands = new float[BandCount];
-    private readonly float[] _peakBands = new float[BandCount];
 
     public bool IsActive { get; private set; }
+
+    public AudioCaptureService()
+    {
+        // Restart capture after the system wakes from sleep — WASAPI handles
+        // become stale/dead while the PC is suspended.
+        SystemEvents.PowerModeChanged += OnPowerModeChanged;
+    }
 
     public void Start()
     {
@@ -23,7 +30,11 @@ public class AudioCaptureService : IDisposable
         {
             _capture = new WasapiLoopbackCapture();
             _capture.DataAvailable += OnDataAvailable;
-            _capture.RecordingStopped += (s, a) => IsActive = false;
+            _capture.RecordingStopped += (s, a) =>
+            {
+                IsActive = false;
+                Debug.WriteLine("[AudioCapture] Recording stopped.");
+            };
             _capture.StartRecording();
             IsActive = true;
         }
@@ -49,6 +60,22 @@ public class AudioCaptureService : IDisposable
         finally
         {
             IsActive = false;
+        }
+    }
+
+    private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
+    {
+        if (e.Mode == PowerModes.Resume)
+        {
+            Debug.WriteLine("[AudioCapture] System resumed — restarting WASAPI loopback.");
+            Stop();
+            // Give the audio stack a moment to re-initialise after wake
+            System.Threading.Tasks.Task.Delay(1500).ContinueWith(_ => Start());
+        }
+        else if (e.Mode == PowerModes.Suspend)
+        {
+            Debug.WriteLine("[AudioCapture] System suspending — stopping WASAPI loopback.");
+            Stop();
         }
     }
 
@@ -139,6 +166,7 @@ public class AudioCaptureService : IDisposable
 
     public void Dispose()
     {
+        SystemEvents.PowerModeChanged -= OnPowerModeChanged;
         Stop();
     }
 }

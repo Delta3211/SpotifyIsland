@@ -19,6 +19,7 @@ public class MediaTrackInfo
     public Color AccentColor { get; set; } = Color.FromRgb(30, 215, 96); // Spotify Green default
     public Color GlowColor { get; set; } = Color.FromArgb(120, 30, 215, 96);
     public Color DarkColor { get; set; } = Color.FromRgb(18, 18, 20);
+    public Color SecondaryAccent { get; set; } = Color.FromRgb(30, 215, 96);
 
     public string FormattedPosition => FormatTime(Position);
     public string FormattedDuration => FormatTime(Duration);

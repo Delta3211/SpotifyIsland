@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using SpotifyIsland.Models;
 
 namespace SpotifyIsland.Services;
 
@@ -64,12 +66,16 @@ public sealed class KeyboardHookService : IDisposable
 
     private IntPtr _hookHandle = IntPtr.Zero;
     private readonly LowLevelKeyboardProc _proc; // keep alive to prevent GC
+    private HotkeyBindings _hotkeys;
 
-    public KeyboardHookService()
+    public KeyboardHookService(HotkeyBindings? hotkeys = null)
     {
+        _hotkeys = (hotkeys ?? new HotkeyBindings()).Copy();
         _proc = HookCallback;
         Install();
     }
+
+    public void UpdateBindings(HotkeyBindings hotkeys) => _hotkeys = hotkeys.Copy();
 
     private void Install()
     {
@@ -133,19 +139,34 @@ public sealed class KeyboardHookService : IDisposable
 
                 if (ctrl && alt)
                 {
-                    switch (vk)
-                    {
-                        case VK_SPACE: PlayPause?.Invoke(); return (IntPtr)1;  // consume
-                        case VK_RIGHT: Next?.Invoke();      return (IntPtr)1;
-                        case VK_LEFT:  Previous?.Invoke();  return (IntPtr)1;
-                        case VK_UP:    VolumeUp?.Invoke();  return (IntPtr)1;
-                        case VK_DOWN:  VolumeDown?.Invoke();return (IntPtr)1;
-                    }
+                    var hotkeys = _hotkeys;
+                    if (Matches(vk, hotkeys.PlayPause)) { PlayPause?.Invoke(); return (IntPtr)1; }
+                    if (Matches(vk, hotkeys.Next))      { Next?.Invoke();      return (IntPtr)1; }
+                    if (Matches(vk, hotkeys.Previous))  { Previous?.Invoke();  return (IntPtr)1; }
+                    if (Matches(vk, hotkeys.VolumeUp))  { VolumeUp?.Invoke();  return (IntPtr)1; }
+                    if (Matches(vk, hotkeys.VolumeDown)){ VolumeDown?.Invoke();return (IntPtr)1; }
                 }
             }
         }
         return CallNextHookEx(_hookHandle, nCode, wParam, lParam);
     }
+
+    private static readonly IReadOnlyDictionary<string, uint> KeyCodes = new Dictionary<string, uint>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Space"] = VK_SPACE,
+        ["Left"] = VK_LEFT,
+        ["Right"] = VK_RIGHT,
+        ["Up"] = VK_UP,
+        ["Down"] = VK_DOWN,
+        ["P"] = 0x50,
+        ["N"] = 0x4E,
+        ["B"] = 0x42,
+        ["+"] = 0xBB,
+        ["-"] = 0xBD,
+    };
+
+    private static bool Matches(uint virtualKey, string configuredKey)
+        => KeyCodes.TryGetValue(configuredKey, out uint keyCode) && virtualKey == keyCode;
 
     public void Dispose()
     {
