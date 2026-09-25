@@ -25,8 +25,10 @@ public partial class App : System.Windows.Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        const string mutexName = @"Local\SpotifyIsland_SingleInstance_Mutex";
-        const string eventName = @"Local\SpotifyIsland_ShowIsland_Event";
+        // This namespace change lets the repaired app start when an older,
+        // invisible build is still holding the original single-instance lock.
+        const string mutexName = @"Local\SpotifyIsland_SingleInstance_Mutex_v2";
+        const string eventName = @"Local\SpotifyIsland_ShowIsland_Event_v2";
 
         _mutex = new System.Threading.Mutex(true, mutexName, out bool isNewInstance);
         if (!isNewInstance)
@@ -101,7 +103,7 @@ public partial class App : System.Windows.Application
 
         _trayIcon.ContextMenuStrip = menu;
 
-        // Show the window so the island is immediately visible and interactive
+        // Show the window so the island is immediately visible and interactive.
         _mainWindow.Show();
     }
 
@@ -118,9 +120,7 @@ public partial class App : System.Windows.Application
             MainWindow  = _mainWindow;
         }
 
-        // A hidden island retains its completed off-screen animation. Replaying
-        // its normal entrance restores both visibility and the on-screen position.
-        _mainWindow.EnsureIslandVisible();
+        _mainWindow.ShowForUserRequest();
         _mainWindow.Activate();
         _trayIcon!.Text = "Spotify Island — Active";
     }

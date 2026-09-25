@@ -14,7 +14,7 @@
     <ApplicationIcon>app.ico</ApplicationIcon>
     <AssemblyName>SpotifyIsland</AssemblyName>
     <RootNamespace>SpotifyIsland</RootNamespace>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Description>Dynamic Island companion widget for Spotify on Windows</Description>
     <Copyright>MIT License</Copyright>
     <!-- Needed so app.ico is copied alongside the EXE for tray icon -->

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace SpotifyIsland.Models;
 
 public sealed class IslandSettings
@@ -11,6 +14,15 @@ public sealed class IslandSettings
     public double WindowLeft { get; set; }
     public double WindowTop { get; set; } = 10;
     public HotkeyBindings Hotkeys { get; set; } = new();
+    public List<RecentTrack> RecentTracks { get; set; } = new();
+}
+
+public sealed class RecentTrack
+{
+    public string Title { get; set; } = "";
+    public string Artist { get; set; } = "";
+    public string AlbumTitle { get; set; } = "";
+    public DateTime LastPlayedUtc { get; set; } = DateTime.UtcNow;
 }
 
 public sealed class HotkeyBindings

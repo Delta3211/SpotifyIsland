@@ -32,6 +32,9 @@ Sits quietly in your system tray. Springs to life the moment you open or minimiz
 | 🌙 | **Focus Mode** | Removes visualizers for a calmer, low-distraction player |
 | ✍ | **Compact Lyrics** | Keeps the current and upcoming lyric line in view |
 | 📴 | **Offline State** | Clear Spotify-unavailable state with a one-click launch action |
+| 🕘 | **Listening Trail** | Keeps your last 12 locally observed tracks one click away |
+| 💿 | **Album Gestures** | Double-click album art to play or pause; scroll it to adjust volume |
+| 🖥️ | **Display-Safe Placement** | Keeps the island on-screen after monitor or resolution changes |
 | 🪟 | **System Tray** | Runs passively in background — activates when Spotify opens/minimizes |
 
 ---
@@ -42,8 +45,8 @@ Sits quietly in your system tray. Springs to life the moment you open or minimiz
 
 1. Go to [**Releases**](../../releases/latest)
 2. Download `SpotifyIsland.exe`
-3. Double-click to run — it appears in your system tray (bottom-right)
-4. Open Spotify — the island slides in automatically ✨
+3. Double-click to run — the island opens centered at the top of your display
+4. Open Spotify — it switches from its offline state to live playback automatically ✨
 
 > **Tip:** Right-click the tray icon → **Run on Windows Startup** to launch it automatically with Windows.
 
@@ -89,7 +92,10 @@ Choose alternate keys for each action from Settings. The `Ctrl + Alt` modifier s
 | **Drag to left/right edge** | Docks as an arrow peek tab |
 | **Drag to top** | Snaps back to top-center |
 | **Pin button (📌)** | Keep expanded permanently |
-| **Settings** | Choose output device, focus mode, compact lyrics, collapse delay, and hotkeys |
+| **Album art double-click** | Play or pause the current track |
+| **Scroll album art** | Adjust system volume |
+| **Listening trail button** | Reopen up to 12 locally observed tracks in Spotify |
+| **Settings** | Choose output device, focus mode, compact lyrics, collapse delay, hotkeys, or reset placement |
 | **Right-click tray icon** | Open Spotify, toggle startup, quit |
 | **Double-click tray icon** | Show island immediately |
 
@@ -97,10 +103,10 @@ Choose alternate keys for each action from Settings. The `Ctrl + Alt` modifier s
 
 ## 🪟 System Tray Behavior
 
-SpotifyIsland is designed to be **completely passive**:
+SpotifyIsland stays available from the **system tray**:
 
-- Starts **hidden** — no window, just a tray icon
-- **Slides in** when Spotify opens or is minimized (polls every 1.5s)
+- Opens centered so it is always discoverable, even when Spotify is offline
+- **Slides in** when Spotify opens or is minimized
 - **Slides out** when Spotify is fully closed
 - **Tray tooltip** updates with "Now Playing 🎵" / "Waiting for Spotify…"
 - **Auto-startup** via right-click → "Run on Windows Startup" (writes to `HKCU\...\Run`)

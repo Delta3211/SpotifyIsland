@@ -11,8 +11,10 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using SpotifyIsland.Models;
 using SpotifyIsland.Services;
+using FormsScreen = System.Windows.Forms.Screen;
 
 namespace SpotifyIsland;
 
@@ -44,6 +46,7 @@ public partial class MainWindow : Window
     private bool   _isAutoBloomEnabled  = true;
     private bool   _isLyricsVisible     = false;
     private bool   _isSettingsVisible   = false;
+    private bool   _isHistoryVisible    = false;
     private string _lastTrackSignature  = "";
     private IntPtr _windowHandle;
     private IslandSettings _settings = new();
@@ -149,7 +152,6 @@ public partial class MainWindow : Window
         _bloomRetractTimer.Tick += (s, e) =>
         {
             _bloomRetractTimer.Stop();
-            NowPlayingBadge.Visibility = Visibility.Collapsed;
             if (!_isPinned && !IsMouseOver) CollapseIsland();
         };
 
@@ -165,6 +167,8 @@ public partial class MainWindow : Window
         // Lyrics line highlighter — ticks every 300 ms while lyrics are visible
         _lyricsUpdateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
         _lyricsUpdateTimer.Tick += (s, e) => HighlightCurrentLyricLine();
+
+        SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
 
         ApplySettings();
         _isSettingsReady = true;
@@ -201,6 +205,7 @@ public partial class MainWindow : Window
         _lastSpotifyWasMinimized = false;
 
         await _mediaService.InitializeAsync();
+        ShowForUserRequest();
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -225,6 +230,50 @@ public partial class MainWindow : Window
         RefreshAudioDevicePicker();
     }
 
+    private Rect GetWorkingArea()
+    {
+        try
+        {
+            if (_windowHandle == IntPtr.Zero) return SystemParameters.WorkArea;
+
+            var screen = FormsScreen.FromHandle(_windowHandle);
+            var source = PresentationSource.FromVisual(this);
+            if (source?.CompositionTarget == null) return SystemParameters.WorkArea;
+
+            var fromDevice = source.CompositionTarget.TransformFromDevice;
+            var topLeft = fromDevice.Transform(new Point(screen.WorkingArea.Left, screen.WorkingArea.Top));
+            var bottomRight = fromDevice.Transform(new Point(screen.WorkingArea.Right, screen.WorkingArea.Bottom));
+            return new Rect(topLeft, bottomRight);
+        }
+        catch
+        {
+            return SystemParameters.WorkArea;
+        }
+    }
+
+    private void OnDisplaySettingsChanged(object? sender, EventArgs e)
+        => Dispatcher.InvokeAsync(EnsureWindowIsOnScreen);
+
+    private void EnsureWindowIsOnScreen()
+    {
+        var workArea = GetWorkingArea();
+        if (_dockState == EdgeDockState.TopCenter)
+        {
+            SnapToTopCenter();
+            return;
+        }
+
+        BeginAnimation(LeftProperty, null);
+        BeginAnimation(TopProperty, null);
+        Left = _dockState == EdgeDockState.LeftPeek
+            ? workArea.Left
+            : _dockState == EdgeDockState.RightPeek
+                ? workArea.Right - Width
+                : Math.Clamp(Left, workArea.Left, Math.Max(workArea.Left, workArea.Right - Width));
+        Top = Math.Clamp(Top, workArea.Top, Math.Max(workArea.Top, workArea.Bottom - 80));
+        PersistSettings();
+    }
+
     // =====================================================================
     // Media state updates
     // =====================================================================
@@ -246,7 +295,13 @@ public partial class MainWindow : Window
             // Task 8: cross-fade album art on track change
             string signature = $"{track.Title} - {track.Artist}";
             bool isNewSong   = !string.IsNullOrEmpty(track.Title) && _lastTrackSignature != "" && signature != _lastTrackSignature;
+            bool shouldRememberTrack = track.HasTrack
+                && !_mediaService.IsDemoMode
+                && !string.Equals(signature, _lastTrackSignature, StringComparison.Ordinal);
             _lastTrackSignature = signature;
+
+            if (shouldRememberTrack)
+                AddToListeningTrail(track);
 
             if (isNewSong)
             {
@@ -290,13 +345,11 @@ public partial class MainWindow : Window
             // ── Status badges ─────────────────────────────────────────
             if (_mediaService.IsDemoMode)
             {
-                DemoBadge.Visibility  = Visibility.Visible;
                 AppStatusText.Text    = "SPOTIFY OFFLINE";
                 OpenSpotifyButton.Visibility = Visibility.Visible;
             }
             else
             {
-                DemoBadge.Visibility  = Visibility.Collapsed;
                 AppStatusText.Text    = "SPOTIFY LIVE";
                 OpenSpotifyButton.Visibility = Visibility.Collapsed;
             }
@@ -444,12 +497,13 @@ public partial class MainWindow : Window
         if (_isExpanded) return;
         _isExpanded = true;
         _collapseTimer.Stop();
+        Height = _isLyricsVisible ? 390 : 320;
 
         AlignIslandContainer();
         IslandContainer.CornerRadius = new CornerRadius(36);
 
-        double targetWidth  = _isLyricsVisible ? 580 : 560;
-        double targetHeight = _isLyricsVisible ? LyricsExpandedHeight : 220;
+        double targetWidth  = 540;
+        double targetHeight = ExpandedHeight;
         var duration = TimeSpan.FromMilliseconds(280);
         var ease     = new CubicEase { EasingMode = EasingMode.EaseOut };
 
@@ -480,6 +534,7 @@ public partial class MainWindow : Window
         var duration = TimeSpan.FromMilliseconds(240);
         var ease     = new CubicEase { EasingMode = EasingMode.EaseOut };
 
+        Height = 320;
         IslandContainer.BeginAnimation(WidthProperty,  new DoubleAnimation(320, duration) { EasingFunction = ease });
         IslandContainer.BeginAnimation(HeightProperty, new DoubleAnimation(56,  duration) { EasingFunction = ease });
 
@@ -607,29 +662,29 @@ public partial class MainWindow : Window
 
     private void EvaluateEdgeDocking()
     {
-        double screenWidth     = SystemParameters.PrimaryScreenWidth;
-        double pillW           = IslandContainer.ActualWidth > 0 ? IslandContainer.ActualWidth : (_isExpanded ? 560 : 320);
+        var workArea = GetWorkingArea();
+        double pillW           = IslandContainer.ActualWidth > 0 ? IslandContainer.ActualWidth : (_isExpanded ? 540 : 320);
         double pillMargin      = (Width - pillW) / 2.0;
         double pillScreenLeft  = Left + pillMargin;
         double pillScreenRight = pillScreenLeft + pillW;
 
-        if (Top <= 25 && pillScreenLeft > 80 && pillScreenRight < screenWidth - 80)
+        if (Top <= workArea.Top + 25 && pillScreenLeft > workArea.Left + 80 && pillScreenRight < workArea.Right - 80)
         {
             _dockState = EdgeDockState.TopCenter;
             SnapToTopCenter();
         }
-        else if (pillScreenLeft < 40 || Left < 15)
+        else if (pillScreenLeft < workArea.Left + 40 || Left < workArea.Left + 15)
         {
             _dockState = EdgeDockState.LeftPeek;
             BeginAnimation(LeftProperty, null);
-            Left = 0;
+            Left = workArea.Left;
             RetractIslandToPeek();
         }
-        else if (pillScreenRight > screenWidth - 40 || Left > screenWidth - Width - 15)
+        else if (pillScreenRight > workArea.Right - 40 || Left > workArea.Right - Width - 15)
         {
             _dockState = EdgeDockState.RightPeek;
             BeginAnimation(LeftProperty, null);
-            Left = screenWidth - Width;
+            Left = workArea.Right - Width;
             RetractIslandToPeek();
         }
         else
@@ -653,7 +708,6 @@ public partial class MainWindow : Window
         _collapseTimer.Stop();
         _bloomRetractTimer.Stop();
         _peekRetractTimer.Stop();
-        NowPlayingBadge.Visibility = Visibility.Collapsed;
 
         if ((_dockState == EdgeDockState.LeftPeek || _dockState == EdgeDockState.RightPeek) && _isPeekTucked)
             ShowIslandFromPeek();
@@ -680,11 +734,11 @@ public partial class MainWindow : Window
 
     private void SnapToTopCenter()
     {
-        double screenWidth = SystemParameters.PrimaryScreenWidth;
+        var workArea = GetWorkingArea();
         BeginAnimation(LeftProperty, null);
         BeginAnimation(TopProperty,  null);
-        Left = (screenWidth - Width) / 2.0;
-        Top  = 10;
+        Left = workArea.Left + (workArea.Width - Width) / 2.0;
+        Top  = workArea.Top + 10;
         _dockState    = EdgeDockState.TopCenter;
         _isPeekTucked = false;
         _peekRetractTimer.Stop();
@@ -693,6 +747,8 @@ public partial class MainWindow : Window
         if (RightPeekTab != null) RightPeekTab.Visibility = Visibility.Collapsed;
         if (IslandContainer != null)
         {
+            // Completed peek animations hold opacity at zero until their clock is removed.
+            IslandContainer.BeginAnimation(OpacityProperty, null);
             IslandContainer.Visibility          = Visibility.Visible;
             IslandContainer.HorizontalAlignment = HorizontalAlignment.Center;
             IslandContainer.Margin              = new Thickness(0);
@@ -709,7 +765,6 @@ public partial class MainWindow : Window
 
     private void TriggerBloomNotification()
     {
-        NowPlayingBadge.Visibility = Visibility.Visible;
         if (_dockState == EdgeDockState.LeftPeek || _dockState == EdgeDockState.RightPeek)
             ShowIslandFromPeek();
         else
@@ -750,15 +805,18 @@ public partial class MainWindow : Window
         _isLyricsVisible = true;
 
         PopulateLyricsPanel();
-        LyricsView.MaxHeight = _settings.UseCompactLyrics ? 52 : 90;
+        PlayerContent.Visibility = Visibility.Collapsed;
+        LyricsView.MaxHeight = _settings.UseCompactLyrics ? 86 : 180;
         LyricsView.Visibility = Visibility.Visible;
         LyricsView.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200)));
+        ViewModeLabel.Text = "LYRICS";
+        LyricsButton.ToolTip = "Return to player";
 
-        // Expand island taller to fit lyrics
         if (_isExpanded)
         {
+            Height = 390;
             IslandContainer.BeginAnimation(HeightProperty,
-                new DoubleAnimation(LyricsExpandedHeight, TimeSpan.FromMilliseconds(220))
+                new DoubleAnimation(ExpandedHeight, TimeSpan.FromMilliseconds(220))
                 { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
         }
 
@@ -769,15 +827,22 @@ public partial class MainWindow : Window
     {
         _isLyricsVisible = false;
         _lyricsUpdateTimer.Stop();
+        ViewModeLabel.Text = "PLAYER";
+        LyricsButton.ToolTip = "Show lyrics";
 
         var fade = new DoubleAnimation(0, TimeSpan.FromMilliseconds(160));
-        fade.Completed += (s, e) => LyricsView.Visibility = Visibility.Collapsed;
+        fade.Completed += (s, e) =>
+        {
+            LyricsView.Visibility = Visibility.Collapsed;
+            PlayerContent.Visibility = Visibility.Visible;
+        };
         LyricsView.BeginAnimation(OpacityProperty, fade);
 
         if (_isExpanded)
         {
+            Height = 320;
             IslandContainer.BeginAnimation(HeightProperty,
-                new DoubleAnimation(220, TimeSpan.FromMilliseconds(220))
+                new DoubleAnimation(ExpandedHeight, TimeSpan.FromMilliseconds(220))
                 { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
         }
     }
@@ -842,7 +907,9 @@ public partial class MainWindow : Window
         }
     }
 
-    private double LyricsExpandedHeight => _settings.UseCompactLyrics ? 265 : 310;
+    private double ExpandedHeight => _isLyricsVisible
+        ? _settings.UseCompactLyrics ? 260 : 340
+        : 240;
 
     // =====================================================================
     // Album art hover zoom (Task 9)
@@ -873,6 +940,20 @@ public partial class MainWindow : Window
                 new DoubleAnimation(1.06, 1.0, TimeSpan.FromMilliseconds(180))
                 { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } });
         }
+    }
+
+    private void OnAlbumCoverMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (e.Delta > 0) _systemAudio.StepVolumeUp(0.03f);
+        else             _systemAudio.StepVolumeDown(0.03f);
+        e.Handled = true;
+    }
+
+    private void OnAlbumCoverMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2) return;
+        _ = _mediaService.TogglePlayPauseAsync();
+        e.Handled = true;
     }
 
     // =====================================================================
@@ -942,6 +1023,114 @@ public partial class MainWindow : Window
         Process.Start(new ProcessStartInfo($"https://open.spotify.com/search/{encodedQuery}") { UseShellExecute = true });
     }
 
+    private void AddToListeningTrail(MediaTrackInfo track)
+    {
+        if (string.IsNullOrWhiteSpace(track.Title)) return;
+
+        _settings.RecentTracks.RemoveAll(item =>
+            string.Equals(item.Title, track.Title, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(item.Artist, track.Artist, StringComparison.OrdinalIgnoreCase));
+        _settings.RecentTracks.Insert(0, new RecentTrack
+        {
+            Title = track.Title,
+            Artist = track.Artist,
+            AlbumTitle = track.AlbumTitle,
+            LastPlayedUtc = DateTime.UtcNow,
+        });
+        if (_settings.RecentTracks.Count > 12)
+            _settings.RecentTracks.RemoveRange(12, _settings.RecentTracks.Count - 12);
+
+        PersistSettings();
+        if (_isHistoryVisible) PopulateListeningTrail();
+    }
+
+    private void OnHistoryClick(object sender, RoutedEventArgs e)
+    {
+        if (_isHistoryVisible) HideListeningTrail();
+        else ShowListeningTrail();
+    }
+
+    private void ShowListeningTrail()
+    {
+        if (_isSettingsVisible) HideSettings();
+        _isHistoryVisible = true;
+        _collapseTimer.Stop();
+        Height = 410;
+        ExpandedView.IsHitTestVisible = false;
+        ExpandedView.BeginAnimation(OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(120)));
+        PopulateListeningTrail();
+        HistoryPanel.Visibility = Visibility.Visible;
+        HistoryPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180)));
+        IslandContainer.BeginAnimation(HeightProperty,
+            new DoubleAnimation(370, TimeSpan.FromMilliseconds(220))
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+    }
+
+    private void HideListeningTrail()
+    {
+        _isHistoryVisible = false;
+        var fade = new DoubleAnimation(0, TimeSpan.FromMilliseconds(150));
+        fade.Completed += (s, e) =>
+        {
+            HistoryPanel.Visibility = Visibility.Collapsed;
+            ExpandedView.IsHitTestVisible = true;
+            ExpandedView.BeginAnimation(OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(150)));
+        };
+        HistoryPanel.BeginAnimation(OpacityProperty, fade);
+        Height = _isLyricsVisible ? 390 : 320;
+        IslandContainer.BeginAnimation(HeightProperty,
+            new DoubleAnimation(ExpandedHeight, TimeSpan.FromMilliseconds(220))
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+    }
+
+    private void PopulateListeningTrail()
+    {
+        HistoryPanelItems.Children.Clear();
+        if (_settings.RecentTracks.Count == 0)
+        {
+            HistoryPanelItems.Children.Add(new TextBlock
+            {
+                Text = "Your recently played tracks will appear here.",
+                Foreground = new SolidColorBrush(Color.FromRgb(130, 130, 140)),
+                FontSize = 11.5,
+                Margin = new Thickness(0, 12, 0, 0),
+            });
+            return;
+        }
+
+        foreach (var item in _settings.RecentTracks)
+        {
+            var button = new Button
+            {
+                Style = (Style)FindResource("IconButtonStyle"),
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                Padding = new Thickness(10, 8, 10, 8),
+                Margin = new Thickness(0, 0, 0, 4),
+                ToolTip = "Open this track in Spotify",
+            };
+            var content = new StackPanel();
+            content.Children.Add(new TextBlock
+            {
+                Text = item.Title,
+                Foreground = Brushes.White,
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+            });
+            content.Children.Add(new TextBlock
+            {
+                Text = string.IsNullOrWhiteSpace(item.AlbumTitle) ? item.Artist : $"{item.Artist}  •  {item.AlbumTitle}",
+                Foreground = new SolidColorBrush(Color.FromRgb(140, 140, 150)),
+                FontSize = 10,
+                Margin = new Thickness(0, 2, 0, 0),
+                TextTrimming = TextTrimming.CharacterEllipsis,
+            });
+            button.Content = content;
+            button.Click += (s, e) => OpenSpotifySearch($"{item.Title} {item.Artist}");
+            HistoryPanelItems.Children.Add(button);
+        }
+    }
+
     // =====================================================================
     // Persistent preferences
     // =====================================================================
@@ -966,6 +1155,7 @@ public partial class MainWindow : Window
             SelectHotkey(VolumeUpHotkeyPicker, _settings.Hotkeys.VolumeUp);
             SelectHotkey(VolumeDownHotkeyPicker, _settings.Hotkeys.VolumeDown);
 
+            UpdateHotkeyHint();
             UpdateBloomUi();
             UpdatePinUi();
             ApplyFocusMode();
@@ -978,9 +1168,10 @@ public partial class MainWindow : Window
 
     private void RestoreWindowPlacement()
     {
-        double maxLeft = Math.Max(0, SystemParameters.PrimaryScreenWidth - Width);
-        double maxTop = Math.Max(0, SystemParameters.WorkArea.Height - 80);
-        double savedTop = Math.Clamp(_settings.WindowTop, 0, maxTop);
+        var workArea = GetWorkingArea();
+        double maxLeft = Math.Max(workArea.Left, workArea.Right - Width);
+        double maxTop = Math.Max(workArea.Top, workArea.Bottom - 80);
+        double savedTop = Math.Clamp(_settings.WindowTop, workArea.Top, maxTop);
 
         if (!Enum.TryParse(_settings.DockState, true, out EdgeDockState savedDock))
             savedDock = EdgeDockState.TopCenter;
@@ -989,7 +1180,7 @@ public partial class MainWindow : Window
         {
             case EdgeDockState.LeftPeek:
                 _dockState = EdgeDockState.LeftPeek;
-                Left = 0;
+                Left = workArea.Left;
                 Top = savedTop;
                 Dispatcher.BeginInvoke(RetractIslandToPeek);
                 break;
@@ -1001,7 +1192,7 @@ public partial class MainWindow : Window
                 break;
             case EdgeDockState.None:
                 _dockState = EdgeDockState.None;
-                Left = Math.Clamp(_settings.WindowLeft, 0, maxLeft);
+                Left = Math.Clamp(_settings.WindowLeft, workArea.Left, maxLeft);
                 Top = savedTop;
                 break;
             default:
@@ -1048,7 +1239,17 @@ public partial class MainWindow : Window
         _settings.Hotkeys.VolumeUp = SelectedHotkey(VolumeUpHotkeyPicker, "Up");
         _settings.Hotkeys.VolumeDown = SelectedHotkey(VolumeDownHotkeyPicker, "Down");
         _keyboardHook.UpdateBindings(_settings.Hotkeys);
+        UpdateHotkeyHint();
         PersistSettings();
+    }
+
+    private void UpdateHotkeyHint()
+    {
+        if (HotkeyHintText == null || HotkeyHintBorder == null) return;
+
+        string key = _settings.Hotkeys.PlayPause;
+        HotkeyHintText.Text = $"Ctrl+Alt+{key}";
+        HotkeyHintBorder.ToolTip = $"Play or pause: Ctrl+Alt+{key}";
     }
 
     private void OnFocusModeChanged(object sender, RoutedEventArgs e)
@@ -1107,6 +1308,13 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OnResetPlacementClick(object sender, RoutedEventArgs e)
+    {
+        _dockState = EdgeDockState.TopCenter;
+        _isPeekTucked = false;
+        SnapToTopCenter();
+    }
+
     // =====================================================================
     // Settings panel (Task 14)
     // =====================================================================
@@ -1119,17 +1327,34 @@ public partial class MainWindow : Window
 
     private void ShowSettings()
     {
+        if (_isHistoryVisible) HideListeningTrail();
         _isSettingsVisible = true;
+        _collapseTimer.Stop();
+        Height = 450;
+        ExpandedView.IsHitTestVisible = false;
+        ExpandedView.BeginAnimation(OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(120)));
         SettingsPanel.Visibility = Visibility.Visible;
         SettingsPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180)));
+        IslandContainer.BeginAnimation(HeightProperty,
+            new DoubleAnimation(410, TimeSpan.FromMilliseconds(220))
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
     }
 
     private void HideSettings()
     {
         _isSettingsVisible = false;
         var fade = new DoubleAnimation(0, TimeSpan.FromMilliseconds(150));
-        fade.Completed += (s, e) => SettingsPanel.Visibility = Visibility.Collapsed;
+        fade.Completed += (s, e) =>
+        {
+            SettingsPanel.Visibility = Visibility.Collapsed;
+            ExpandedView.IsHitTestVisible = true;
+            ExpandedView.BeginAnimation(OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(150)));
+        };
         SettingsPanel.BeginAnimation(OpacityProperty, fade);
+        Height = _isLyricsVisible ? 390 : 320;
+        IslandContainer.BeginAnimation(HeightProperty,
+            new DoubleAnimation(ExpandedHeight, TimeSpan.FromMilliseconds(220))
+            { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
     }
 
     private void OnCollapseDelayChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -1163,11 +1388,7 @@ public partial class MainWindow : Window
     {
         var accent = _mediaService.CurrentTrack.AccentColor;
         var color = new SolidColorBrush(_isAutoBloomEnabled ? accent : Color.FromRgb(120, 120, 120));
-        BloomIconPath.Fill = color;
         SettingsBloomPath.Fill = color;
-        BloomButton.ToolTip = _isAutoBloomEnabled
-            ? "Auto-Bloom: Expand on track change (Active)"
-            : "Auto-Bloom: Expand on track change (Disabled)";
     }
 
     private void OnFavoriteClick(object sender, RoutedEventArgs e)
@@ -1218,6 +1439,17 @@ public partial class MainWindow : Window
 
     private void OnCollapseClick(object sender, RoutedEventArgs e)
     {
+        if (_isSettingsVisible)
+        {
+            HideSettings();
+            return;
+        }
+        if (_isHistoryVisible)
+        {
+            HideListeningTrail();
+            return;
+        }
+
         _isPinned = false;
         UpdatePinUi();
         PersistSettings();
@@ -1364,6 +1596,22 @@ public partial class MainWindow : Window
         if (!IsVisible || Opacity < 0.1) ShowIslandForSpotify();
     }
 
+    public void ShowForUserRequest()
+    {
+        if (!IsVisible || Opacity < 0.1)
+        {
+            Opacity = 1;
+            Show();
+        }
+
+        // A deliberate open should never restore into an invisible edge tab.
+        _dockState = EdgeDockState.TopCenter;
+        _isPeekTucked = false;
+        SnapToTopCenter();
+        if (!_isExpanded) ExpandIsland();
+        Activate();
+    }
+
     private void ShowIslandForSpotify()
     {
         if (!IsVisible || Opacity < 0.1) { Opacity = 0; Show(); }
@@ -1371,16 +1619,18 @@ public partial class MainWindow : Window
         if (System.Windows.Application.Current is App app)
             app.UpdateTrayText("Spotify Island — Now Playing 🎵");
 
+        if (_dockState == EdgeDockState.TopCenter) SnapToTopCenter();
+
+        double targetTop = Top;
         BeginAnimation(TopProperty, new DoubleAnimation
         {
-            From           = -60,
-            To             = 10,
+            From           = targetTop - 70,
+            To             = targetTop,
             Duration       = TimeSpan.FromMilliseconds(340),
             EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.3 }
         });
         BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200)));
 
-        if (_dockState == EdgeDockState.TopCenter) SnapToTopCenter();
         if (!_isExpanded && _isAutoBloomEnabled)   TriggerBloomNotification();
     }
 
@@ -1394,7 +1644,7 @@ public partial class MainWindow : Window
 
         BeginAnimation(TopProperty, new DoubleAnimation
         {
-            To             = -80,
+            To             = GetWorkingArea().Top - 80,
             Duration       = TimeSpan.FromMilliseconds(260),
             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
         });
@@ -1422,6 +1672,7 @@ public partial class MainWindow : Window
     {
         // Called explicitly by App.QuitApp before Shutdown()
         PersistSettings();
+        SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
         _spotifyMonitorTimer.Stop();
         _lyricsUpdateTimer.Stop();
         _processWatcher.Dispose();
