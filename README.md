@@ -150,7 +150,7 @@ SpotifyIsland/
 SpotifyIsland intentionally works without an account or API key through Windows GSMTC. A true queue preview requires a Spotify Developer app and a user-authorized OAuth connection, so it is not enabled in the public build yet. The current release keeps playback, lyrics, device selection, and track actions fully local.
 
 ---
-
+DISCLAIMER: I do not care about your information and this app is only used for you and you only, Windows will warn you not to run it but ignore it
 ## 📜 License
 
 [MIT License](LICENSE) — free to use, modify, and distribute.
